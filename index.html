@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 训练师全流程作战地图 · 可视化知识库</title>
+<style>
+:root{
+  --bg:#0a0a0b; --bg2:#141417; --card:#141417; --card2:#1c1c21; --border:rgba(255,255,255,.06); --border2:rgba(255,255,255,.1);
+  --text:#ffffff; --text2:#a1a1aa; --text3:#71717a;
+  --blue:#3b82f6; --cyan:#06b6d4; --green:#10b981; --purple:#8b5cf6; --orange:#f59e0b; --pink:#ec4899; --rose:#f43f5e; --teal:#14b8a6; --yellow:#eab308;
+  --nav-bg:rgba(10,10,11,.85); --shadow:0 16px 40px rgba(0,0,0,.4);
+}
+html.light{
+  --bg:#f5f5f7; --bg2:#ffffff; --card:#ffffff; --card2:#fafafa; --border:rgba(0,0,0,.05); --border2:rgba(0,0,0,.09);
+  --text:#1a1d21; --text2:#52525b; --text3:#9ca3af;
+  --nav-bg:rgba(255,255,255,.85); --shadow:0 16px 40px rgba(0,0,0,.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(128,150,180,.25);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(128,150,180,.4)}
+a{color:var(--cyan);text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+::selection{background:rgba(59,130,246,.35)}
+b,strong{font-weight:700}
+
+/* ===== top bar (home) ===== */
+#topbar{position:fixed;top:0;left:0;right:0;z-index:60;background:var(--nav-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+#topbar .in{max-width:1400px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+#topbar .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.2px}
+#topbar .logo .mark{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 18px rgba(59,130,246,.4)}
+#topbar .sp{flex:1}
+.tbtn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12.5px;font-weight:600;transition:.2s}
+.tbtn:hover{color:var(--text);border-color:var(--border2);transform:translateY(-1px)}
+
+/* ===== home ===== */
+#home{max-width:1400px;margin:0 auto;padding:96px 24px 40px}
+.hero{text-align:center;position:relative;padding:26px 0 8px}
+.hero .glow{position:absolute;left:50%;top:-40px;transform:translateX(-50%);width:720px;height:340px;background:radial-gradient(closest-side,rgba(59,130,246,.22),transparent);pointer-events:none;filter:blur(10px)}
+.hero .badge{position:relative;display:inline-flex;gap:8px;align-items:center;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#fff;background:linear-gradient(90deg,var(--purple),var(--pink));padding:6px 16px;border-radius:999px;margin-bottom:20px}
+.hero h1{position:relative;font-size:clamp(34px,5.4vw,56px);font-weight:800;letter-spacing:-1.2px;line-height:1.08}
+.hero h1 .grad{background:linear-gradient(90deg,#60a5fa,#22d3ee,#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{position:relative;color:var(--text2);max-width:720px;margin:16px auto 0;font-size:15px;line-height:1.7}
+.hero .stats{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px auto 6px}
+.hero .stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 24px;min-width:116px}
+.hero .cta{position:relative;display:flex;gap:12px;justify-content:center;margin:22px 0 4px;flex-wrap:wrap}
+.btn-primary{background:linear-gradient(90deg,var(--blue),var(--cyan));color:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:14px;border:none;box-shadow:0 8px 26px rgba(59,130,246,.35);transition:.25s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(59,130,246,.45)}
+.btn-ghost{background:var(--card);color:var(--text);font-weight:600;font-size:14px;padding:12px 28px;border-radius:14px;border:1px solid var(--border2);transition:.25s}
+.btn-ghost:hover{transform:translateY(-2px);border-color:var(--blue)}
+
+/* graph */
+#graph-wrap{position:relative;margin:30px 0 8px;border:1px solid var(--border);border-radius:24px;background:var(--bg2);overflow:hidden}
+#graph-canvas{display:block;width:100%;height:480px;cursor:grab;touch-action:none}
+#graph-canvas:active{cursor:grabbing}
+#graph-tip{position:absolute;pointer-events:none;background:var(--card2);border:1px solid var(--border2);border-radius:12px;padding:9px 13px;font-size:12px;max-width:260px;opacity:0;transition:opacity .15s;z-index:5;box-shadow:var(--shadow)}
+#graph-tip .t{font-weight:700;font-size:13px}
+#graph-tip .d{color:var(--text2);margin-top:3px}
+#graph-legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:12px 16px;border-top:1px solid var(--border)}
+#graph-legend .lg{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--text2);cursor:pointer;padding:4px 12px;border-radius:999px;border:1px solid transparent;transition:.2s}
+#graph-legend .lg:hover{border-color:var(--border2);background:var(--card)}
+#graph-legend .lg .sw{width:9px;height:9px;border-radius:50%}
+#graph-hint{position:absolute;top:14px;right:16px;font-size:11px;color:var(--text3);background:var(--nav-bg);padding:5px 12px;border-radius:999px;border:1px solid var(--border)}
+
+/* module map cards */
+.map-head{display:flex;align-items:baseline;gap:12px;margin:44px 0 18px}
+.map-head h2{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.map-head span{font-size:12px;color:var(--text3)}
+#module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.m-card{all:unset;cursor:pointer;display:block;text-align:left;padding:24px 22px;border-radius:22px;background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden;transition:all .4s cubic-bezier(.16,1,.3,1);animation:cardIn .5s cubic-bezier(.16,1,.3,1) both}
+.m-card:hover{transform:translateY(-4px);border-color:var(--mc);box-shadow:0 16px 40px var(--mcs)}
+.m-card .bar{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--mc),transparent)}
+.m-card .row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.m-card .ico{width:52px;height:52px;border-radius:16px;background:var(--mcb);border:1px solid var(--mci);display:flex;align-items:center;justify-content:center;font-size:26px}
+.m-card .idx{font-size:10px;color:var(--text3);font-weight:700}
+.m-card h3{font-size:19px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px}
+.m-card .st{font-size:11px;font-weight:700;color:var(--mc);margin-bottom:10px}
+.m-card .df{font-size:12.5px;color:var(--text2);line-height:1.6;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.m-card .ft{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border)}
+.m-card .ct{font-size:11px;color:var(--text3)}
+.m-card .ct b{color:var(--mc)}
+@keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+
+/* ===== overlay view ===== */
+#view-overlay{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column;opacity:0;transition:opacity .35s cubic-bezier(.16,1,.3,1)}
+#view-overlay.open{display:flex;opacity:1}
+#view-topbar{flex:none;background:var(--nav-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+#view-topbar .r1{max-width:1400px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+#view-topbar .back{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--text2);background:none;border:none;transition:.2s}
+#view-topbar .back:hover{background:var(--card);color:var(--text)}
+#view-topbar .div{width:1px;height:22px;background:var(--border2)}
+#view-topbar .tt{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+#view-topbar .tt .ic{font-size:20px}
+#view-topbar .tt h1{font-size:16px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+#view-topbar .tt .bd{padding:2px 9px;border-radius:999px;font-size:10px;font-weight:800;color:#fff;white-space:nowrap}
+#view-topbar .tt .sb{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-topbar .pn{display:flex;gap:6px}
+#view-topbar .pn button{width:32px;height:32px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:14px;transition:.2s}
+#view-topbar .pn button:hover{color:var(--text);border-color:var(--blue)}
+#view-quicknav{flex:none;border-bottom:1px solid var(--border);background:var(--bg)}
+#view-quicknav .in{max-width:1400px;margin:0 auto;padding:8px 24px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+#view-quicknav .in::-webkit-scrollbar{display:none}
+.qpill{flex:none;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;color:var(--text2);background:none;border:1px solid transparent;transition:.2s;white-space:nowrap}
+.qpill:hover{background:var(--card);color:var(--text)}
+.qpill.on{color:#fff;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 4px 14px rgba(59,130,246,.3)}
+#view-scroll{flex:1;overflow-y:auto}
+#view-content{max-width:1200px;margin:0 auto;padding:36px 24px 72px}
+#view-content.anim{animation:viewIn .45s cubic-bezier(.16,1,.3,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+#store{display:none}
+
+/* ===== shared section typography ===== */
+.reveal{opacity:1;transform:none}
+.sec-head{margin-bottom:26px}
+.sec-tag{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:2px;color:#fff;background:linear-gradient(90deg,var(--purple),var(--pink));padding:5px 14px;border-radius:999px;margin-bottom:14px;text-transform:uppercase}
+.sec-title{font-size:clamp(26px,3.6vw,38px);font-weight:800;letter-spacing:-.8px;line-height:1.15}
+.sec-sub{color:var(--text2);font-size:14px;margin-top:10px;max-width:880px;line-height:1.7}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:22px;transition:.3s}
+.card:hover{border-color:var(--border2)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 11px;border-radius:999px;border:1px solid var(--border2);background:var(--card2);color:var(--text2)}
+.kpi{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.kpi-label{font-size:11px;color:var(--text3);margin-top:2px}
+.note{font-size:12px;color:var(--text3);margin-top:10px;line-height:1.6}
+.src{font-size:11px;color:var(--text3);margin-top:14px;padding-top:12px;border-top:1px dashed var(--border2)}
+.src b{color:var(--text2)}
+.hl{color:var(--cyan);font-weight:700}.hl-o{color:var(--orange);font-weight:700}.hl-g{color:var(--green);font-weight:700}.hl-p{color:var(--purple);font-weight:700}
+ul.pts{list-style:none;margin-top:10px}
+ul.pts li{position:relative;padding-left:18px;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.6}
+ul.pts li::before{content:'▸';position:absolute;left:2px;color:var(--cyan)}
+ul.pts li b{color:var(--text)}
+
+/* chain */
+#chain-flow{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 16px}
+.chain-node{flex:0 0 auto;min-width:130px;max-width:152px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:13px;cursor:pointer;transition:.22s;text-align:left}
+.chain-node:hover{transform:translateY(-3px);border-color:var(--border2)}
+.chain-node.active{border-color:var(--blue);background:linear-gradient(180deg,rgba(59,130,246,.16),rgba(6,182,212,.05));box-shadow:0 8px 24px rgba(59,130,246,.25)}
+.chain-node .num{font-size:10px;font-weight:800;color:var(--cyan);letter-spacing:.1em}
+.chain-node .nm{font-size:13.5px;font-weight:700;margin-top:3px;line-height:1.35}
+.chain-node .en{font-size:10px;color:var(--text3);margin-top:3px}
+.chain-arrow{flex:0 0 auto;align-self:center;color:var(--text3)}
+#chain-detail .cd-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+#chain-detail .cd-num{font-size:32px;font-weight:900;color:var(--blue)}
+#chain-detail .cd-title{font-size:22px;font-weight:800;letter-spacing:-.4px}
+#chain-detail .cd-one{color:var(--text2);font-size:13.5px;margin-top:6px}
+.cd-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:14px}
+@media(max-width:760px){.cd-cols{grid-template-columns:1fr}}
+.metric-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.metric{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;flex:1;min-width:120px}
+.loop-banner{margin-top:18px;border:1px dashed rgba(16,185,129,.5);background:rgba(16,185,129,.07);border-radius:16px;padding:14px 18px;font-size:13px;color:var(--text2)}
+.loop-banner b{color:var(--green)}
+
+/* swimlane */
+#lane-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#lane-filter button{border-radius:999px;padding:7px 15px;font-size:12.5px;font-weight:600;border:1px solid var(--border2);background:var(--card);color:var(--text2);transition:.2s}
+#lane-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:18px;background:var(--card)}
+#lane-table{border-collapse:collapse;width:100%;min-width:980px;font-size:12px}
+#lane-table th{padding:11px 8px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);background:var(--card2)}
+#lane-table td{padding:9px 8px;border-bottom:1px solid var(--border);border-right:1px dashed var(--border);vertical-align:top;color:var(--text2);transition:.2s}
+#lane-table tr:last-child td{border-bottom:none}
+#lane-table td.role{font-weight:700;color:var(--text);white-space:nowrap;background:var(--card2)}
+#lane-table td .task{display:inline-block;border-radius:9px;padding:4px 9px;margin:2px 0;font-size:11.5px;line-height:1.4;border:1px solid var(--border2);background:var(--card2)}
+#lane-table td.has .task{border-color:rgba(59,130,246,.35)}
+#lane-table.dimmed td:not(.role){opacity:.22}
+#lane-table tr.lit td{opacity:1}
+#lane-table tr.lit td .task{box-shadow:0 0 12px rgba(59,130,246,.3)}
+
+/* tabs / cards */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tabs button{border-radius:12px;padding:9px 17px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--card);color:var(--text2);transition:.2s}
+.tabs button.on{color:#fff;background:linear-gradient(90deg,rgba(59,130,246,.6),rgba(6,182,212,.4));border-color:rgba(59,130,246,.5)}
+.proj-card .p-head{display:flex;align-items:center;gap:12px}
+.proj-card .p-ico{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;flex:0 0 auto}
+.proj-card .p-name{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.proj-card .p-en{font-size:11px;color:var(--text3)}
+.proj-card .p-goal{font-size:12.5px;color:var(--text2);margin-top:12px;padding:10px 13px;border-radius:12px;background:var(--card2);border-left:3px solid var(--blue)}
+.stage-card{position:relative;overflow:hidden}
+.stage-card .big{position:absolute;right:12px;top:4px;font-size:54px;font-weight:900;opacity:.08}
+.stage-card h3{font-size:17px;font-weight:800}
+.stage-card .ess{font-size:12.5px;color:var(--text2);margin-top:6px}
+table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:14px}
+table.cmp th{background:var(--card2);color:var(--text2);padding:10px;text-align:left;border:1px solid var(--border);font-size:12px}
+table.cmp td{padding:10px;border:1px solid var(--border);color:var(--text2);vertical-align:top}
+table.cmp td b{color:var(--text)}
+.flow-steps{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.flow-steps .fs{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:9px 13px;font-size:12px;color:var(--text2)}
+.flow-steps .fs b{color:var(--text);display:block;font-size:12.5px}
+.flow-steps .fa{color:var(--text3)}
+
+/* calculators */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px}
+.calc label{font-size:11.5px;color:var(--text3);display:block;margin-bottom:4px}
+.calc input,.calc select{width:100%;background:var(--card2);border:1px solid var(--border2);color:var(--text);border-radius:11px;padding:9px 11px;font-size:13px;font-family:inherit}
+.calc input:focus{outline:none;border-color:var(--blue)}
+.calc-out{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.calc-out .co{flex:1;min-width:130px;background:linear-gradient(180deg,rgba(59,130,246,.12),transparent);border:1px solid rgba(59,130,246,.35);border-radius:14px;padding:13px 15px;text-align:center}
+.calc-out .co .v{font-size:23px;font-weight:800;color:var(--cyan)}
+.calc-out .co .k{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* glossary */
+#gl-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+#gl-search{flex:1;min-width:220px;background:var(--card);border:1px solid var(--border2);color:var(--text);border-radius:13px;padding:11px 17px;font-size:13.5px;font-family:inherit}
+#gl-search:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.2)}
+#gl-cats{display:flex;gap:6px;flex-wrap:wrap}
+#gl-cats button{font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--card);color:var(--text2)}
+#gl-cats button.on{color:#fff;background:var(--blue);border-color:var(--blue)}
+#gl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.gl-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px 17px;transition:.2s}
+.gl-item:hover{border-color:rgba(6,182,212,.45);transform:translateY(-2px)}
+.gl-item .term{font-weight:800;font-size:14.5px}
+.gl-item .en{font-size:11px;color:var(--text3);margin-left:6px;font-weight:500}
+.gl-item .cat{float:right;font-size:10px;padding:2px 9px;border-radius:999px;font-weight:700}
+.gl-item .desc{font-size:12.5px;color:var(--text2);margin-top:7px;line-height:1.6}
+.gl-item .from{font-size:10.5px;color:var(--text3);margin-top:8px}
+#gl-empty{display:none;text-align:center;color:var(--text3);padding:40px;font-size:13px}
+
+/* timeline */
+#tl{position:relative;margin-left:8px;padding-left:26px;border-left:2px solid var(--border2)}
+.tl-item{position:relative;padding-bottom:22px}
+.tl-item::before{content:'';position:absolute;left:-33px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--blue);box-shadow:0 0 12px rgba(59,130,246,.5);border:2px solid var(--bg)}
+.tl-item .date{font-weight:800;font-size:14px}
+.tl-item .phase{font-size:11px;margin-left:8px}
+.tl-item .rec{font-size:12px;color:var(--text2);margin-top:4px}
+.tl-item .topic{font-size:12.5px;color:var(--text2);margin-top:4px}
+.tl-item .topic a{font-weight:600}
+
+/* career */
+.career-step{display:flex;gap:14px;align-items:flex-start}
+.career-step .cs-num{flex:0 0 auto;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+.quote{border-left:3px solid var(--orange);background:rgba(245,158,11,.07);border-radius:0 14px 14px 0;padding:12px 16px;font-size:13px;color:var(--text2);margin-top:12px;line-height:1.6}
+.quote b{color:var(--orange)}
+
+/* search modal */
+#search-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);display:none;align-items:flex-start;justify-content:center;padding:12vh 20px}
+#search-modal.open{display:flex}
+#search-box{width:100%;max-width:620px;background:var(--bg2);border:1px solid var(--border2);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+#search-input{width:100%;background:transparent;border:none;color:var(--text);font-size:15px;padding:17px 21px;font-family:inherit}
+#search-input:focus{outline:none}
+#search-results{max-height:50vh;overflow-y:auto;border-top:1px solid var(--border)}
+#search-results .sr{padding:12px 21px;cursor:pointer;border-bottom:1px solid var(--border)}
+#search-results .sr:hover{background:var(--card)}
+#search-results .sr .t{font-size:13.5px;font-weight:700}
+#search-results .sr .s{font-size:11.5px;color:var(--text3);margin-top:2px}
+#search-results .none{padding:20px;color:var(--text3);font-size:13px;text-align:center}
+
+footer{max-width:1400px;margin:30px auto 0;padding:26px 24px 46px;border-top:1px solid var(--border);color:var(--text3);font-size:12px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div id="topbar"><div class="in">
+  <span class="logo"><span class="mark">🎯</span>AI 训练师作战地图</span>
+  <span class="sp"></span>
+  <button class="tbtn" id="search-btn">🔍 搜索 <span style="opacity:.5">/</span></button>
+  <button class="tbtn" id="theme-btn">🌙</button>
+</div></div>
+
+<div id="home">
+  <div class="hero">
+    <div class="glow"></div>
+    <div class="badge">AI Trainer · Knowledge Map</div>
+    <h1>AI 训练师<span class="grad">全流程作战地图</span></h1>
+    <p class="sub">从需求承接到数据生产、质检验收、模型训练与评测迭代。点击图谱节点或下方模块卡片，进入<b>聚焦视图</b>逐个击破——不再是一页到底的瀑布流。</p>
+    <div class="stats">
+      <div class="stat"><div class="kpi">11</div><div class="kpi-label">链路环节</div></div>
+      <div class="stat"><div class="kpi">6+5</div><div class="kpi-label">文本项目+多模态</div></div>
+      <div class="stat"><div class="kpi" id="stat-terms">61</div><div class="kpi-label">核心术语</div></div>
+      <div class="stat"><div class="kpi">15</div><div class="kpi-label">课程场次</div></div>
+    </div>
+    <div class="cta">
+      <button class="btn-primary" onclick="openView('chain')">🚀 从整体链路开始</button>
+      <button class="btn-ghost" onclick="openView('glossary')">📖 术语速查</button>
+    </div>
+  </div>
+
+  <div id="graph-wrap">
+    <canvas id="graph-canvas"></canvas>
+    <div id="graph-tip"></div>
+    <div id="graph-hint">拖拽 · 滚轮缩放 · 点击节点进入模块</div>
+    <div id="graph-legend"></div>
+  </div>
+
+  <div class="map-head"><h2>🗺️ 知识模块</h2><span>12 个聚焦视图 · 点击进入 · 顶栏可快速切换 / ←→ 翻页</span></div>
+  <div id="module-grid"></div>
+
+  <footer>
+    <div>🎯 AI 训练师全流程作战地图 · 单文件零依赖可离线 · 内容提炼自本地课程资料（人格库 · 02_AI训练师原件）</div>
+    <div style="margin-top:6px">风格参照 ai-pm-qieman-academy 交互式知识图谱 · <a href="javascript:openView('sources')">查看来源引用 ↗</a> · 生成于 2026-11-26</div>
+  </footer>
+</div>
+
+<div id="store">
+<section id="chain" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">01 · Pipeline</span>
+    <h2 class="sec-title">训练师整体链路 · 11 个环节</h2>
+    <p class="sec-sub">训练师是<b class="hl">「模型导师 + 数据项目管家」</b>：上游接 AI 产品经理（体验缺陷驱动）与算法工程师（模型能力驱动）的需求，把抽象需求翻译成可执行的数据生产标准，管理下游标注员产出「理想态数据」，交付后进入训练与评测，再用 Bad Case 反哺规则——形成闭环。点击任一环节查看详解。</p>
+  </div>
+  <div id="chain-flow"></div>
+  <div id="chain-detail" class="card"></div>
+  <div class="loop-banner">🔁 <b>数据飞轮闭环：</b>交付不是终点。业务方验收后提出的 Bad Case → 训练师归因分析（数据问题 or 模型问题）→ 对齐双方规则 → 优化规则文档 → 下一批次更高质量投喂。小批量测试（3000 条）→ 效果评估 → 正向反馈后加大投喂（5000–10000 条）。</div>
+</section>
+
+<section id="swimlane" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">02 · Swimlane</span>
+    <h2 class="sec-title">跨职能泳道图 · 谁在哪个环节做什么</h2>
+    <p class="sec-sub">训练师处在「需求方」与「生产方」之间的枢纽位置。点击角色按钮可高亮该角色的全部职责。</p>
+  </div>
+  <div id="lane-filter"></div>
+  <div id="lane-scroll"><table id="lane-table"></table></div>
+  <p class="note">依据：第一周笔记「团队构成（上下游对接）」+ 评测课程笔记「评测全流程管理」。评测阶段另设评测标注员，实习生通常不参与评测（权限区分）。</p>
+</section>
+
+<section id="training" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">03 · Training Stages</span>
+    <h2 class="sec-title">模型训练三阶段 · 训练师在每一段做什么</h2>
+    <p class="sec-sub">「预训练造就模型的能力上限，后训练决定模型好不好用。」从<b>通才</b>到<b>专才</b>再到<b>自我进化</b>——行业内 <span class="hl-o">60%–70% 的训练师项目集中在 SFT 阶段</span>。</p>
+  </div>
+  <div class="grid g3">
+    <div class="card stage-card" style="border-top:3px solid var(--purple)">
+      <div class="big">PT</div>
+      <h3>① 预训练 Pre-training</h3>
+      <div class="ess">「无监督学习」——投喂海量原始数据（网页/书籍/代码），让模型自己学预测下一个 Token。产出 Base Model：什么都懂，但不会对话、不懂指令。</div>
+      <ul class="pts">
+        <li><b>数据规模：</b>千亿至万亿级 Token（Common Crawl / HuggingFace）</li>
+        <li><b>主导方：</b>算法工程师（选基座、调结构、设计清洗规则）</li>
+        <li><b>训练师工作：</b>辅助数据清洗，整理数据内容与数据类型</li>
+      </ul>
+    </div>
+    <div class="card stage-card" style="border-top:3px solid var(--blue)">
+      <div class="big">SFT</div>
+      <h3>② 有监督微调 SFT</h3>
+      <div class="ess">「教它说话」——提供高质量「问题 → 标准答案」对，让模型学会听从指令与对话格式，从通才蜕变为垂类专才（医疗/法律/代码）。</div>
+      <ul class="pts">
+        <li><b>项目占比：</b>行业 60%–70% 的项目集中于此</li>
+        <li><b>数据量级：</b>几千～几万条（区别于评测的 100–300 条）</li>
+        <li><b>训练师工作：</b>撰写标注规则 → 构建高质量数据集 → 把控标注质量</li>
+        <li><b>项目形态：</b>单轮问答 / 多轮问答 / 各领域专项</li>
+      </ul>
+    </div>
+    <div class="card stage-card" style="border-top:3px solid var(--green)">
+      <div class="big">RL</div>
+      <h3>③ 强化学习 RLHF</h3>
+      <div class="ess">「自我进化」——人类评估员给回答打分排序，奖励模型（RM）学习人类偏好，反向指导大模型迭代，输出最符合人类价值观的答案。</div>
+      <ul class="pts">
+        <li><b>数据来源：</b>用多个模型（GPT-4 / o1 / 文心 / 豆包 / 通义）对同一问题生成不同回答</li>
+        <li><b>核心环节：</b>人工标注排序是 rewards 数据构造中最重要的环节</li>
+        <li><b>训练师工作：</b>训练奖励模型，实现大模型自主学习</li>
+        <li><b>简化方案 DPO：</b>直接偏好优化，1 个偏好回答 + N 个非偏好回答，跳过独立 RM</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="font-size:15px;font-weight:800">🏅 RM 奖励数据标注五步流程</h3>
+    <div class="flow-steps">
+      <div class="fs"><b>① 两两比对</b>N 个回答 pairwise 比较</div><span class="fa">→</span>
+      <div class="fs"><b>② 生成排序</b>由对比结果得出完整排序</div><span class="fa">→</span>
+      <div class="fs"><b>③ 一致性校验</b>暂定三人一致性</div><span class="fa">→</span>
+      <div class="fs"><b>④ 取高一致率</b>只采用高一致部分，有问题重标</div><span class="fa">→</span>
+      <div class="fs"><b>⑤ 争议讨论</b>难一致的 case 讨论优化标准细节</div>
+    </div>
+    <p class="note">RLHF 的痛点：复杂且不稳定（先拟合 RM 再 RL 抽样更新，多阶段易震荡）、计算开销高（PPO 需大量采样）——这也是 DPO 出现的动机。</p>
+  </div>
+  <table class="cmp">
+    <tr><th style="width:130px">对比项</th><th>CoT 提示工程</th><th>SFT 监督微调</th><th>RM 奖励模型</th></tr>
+    <tr><td><b>实现方式</b></td><td>修改 Prompt（指令/少样本），不动模型参数</td><td>在高质量「输入-输出」对上额外训练，调整权重</td><td>用人类偏好数据训练一个独立评估模型</td></tr>
+    <tr><td><b>核心目的</b></td><td>提升复杂推理能力，逐步思考</td><td>定制特定任务/领域/风格</td><td>学会评估输出好坏，为 RL 提供奖励信号</td></tr>
+    <tr><td><b>优点</b></td><td>快速灵活、成本低、可解释</td><td>效果显著、深度定制</td><td>自动化评估质量、对齐人类价值观</td></tr>
+    <tr><td><b>缺点</b></td><td>效果上限低，依赖模型本身推理能力</td><td>成本高，需大量高质量标注数据</td><td>训练复杂，RM 本身不生成内容</td></tr>
+    <tr><td><b>三者结合</b></td><td colspan="3">CoT 输出可作 SFT 训练数据；SFT 可微调模型更好生成 CoT；RM 可评估 CoT 质量并通过 RLHF 优化。</td></tr>
+  </table>
+  <div class="src"><b>来源：</b>AI训练师-第二周笔记（模型训练两大阶段 / CoT-SFT-RM 对比表）</div>
+</section>
+
+<section id="projects" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">04 · Data Projects</span>
+    <h2 class="sec-title">六大数据项目类型 · 标注逻辑各不同</h2>
+    <p class="sec-sub">「80% 的规则是通用的，但那 <span class="hl-o">20% 的特定业务专项规则才是项目的灵魂</span>。」切换标签查看每类项目的目标、数据结构与标注要点。</p>
+  </div>
+  <div class="tabs" id="proj-tabs"></div>
+  <div id="proj-body"></div>
+</section>
+
+<section id="multimodal" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">05 · Multimodal</span>
+    <h2 class="sec-title">多模态项目 · 当前最热门方向</h2>
+    <p class="sec-sub">处理两种及以上信息类型（文本/图像/音频/视频）的数据。分为<b class="hl">生成类</b>（文生图、文生视频、TTS）与<b class="hl">理解类</b>（图片理解、视频理解、ASR）两大阵营。多模态经验建议直接写入简历。</p>
+  </div>
+  <div class="tabs" id="mm-tabs"></div>
+  <div id="mm-body"></div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🌀 扩散模型核心流程（文生图原理）</h3>
+      <div class="flow-steps">
+        <div class="fs"><b>用户 Prompt</b></div><span class="fa">→</span>
+        <div class="fs"><b>CLIP 编码</b>特征向量</div><span class="fa">→</span>
+        <div class="fs"><b>U-Net 降噪</b>潜空间迭代</div><span class="fa">→</span>
+        <div class="fs"><b>VAE 解码</b>最终图像</div>
+      </div>
+      <p class="note">训练逻辑 = 刷题式学习：海量标注图像 → 模型尝试生成 → 对比答案算 Loss → 差得多大调权重、差得少微调。初学者路径：LiblibAI 训 Lora → ComfyUI / SD WebUI 搭工作流（收集数据 → 打标 Caption → 投喂 → 体验）。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🪜 通往 AGI 的五个阶段（面试必背）</h3>
+      <table class="cmp" style="margin-top:8px">
+        <tr><th>阶段</th><th>能力</th><th>代表</th><th>状态</th></tr>
+        <tr><td><b>L1 聊天机器人</b></td><td>回答问题、生成文本</td><td>ChatGPT / 文心 / 千问</td><td>✅ 已实现</td></tr>
+        <tr><td><b>L2 推理者</b></td><td>博士级问题解决</td><td>DeepSeek-R1 / GPT-o 系列</td><td>✅ 已实现</td></tr>
+        <tr><td><b>L3 智能体</b></td><td>自主思考决策执行闭环</td><td>Manus / Claude Computer Use</td><td>🟡 部分实现</td></tr>
+        <tr><td><b>L4 创新者</b></td><td>提出人类想不到的方案</td><td>尚无成熟产品</td><td>❌ 未实现</td></tr>
+        <tr><td><b>L5 组织者</b></td><td>全流程自动化、组织管理</td><td>未来设想</td><td>❌ 未实现</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="src"><b>来源：</b>AI训练师 · 多模态项目-课程笔记（八个模块 + 术语速查表）</div>
+</section>
+
+<section id="rules" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">06 · Guidelines</span>
+    <h2 class="sec-title">规则文档方法论 · 训练师的核心产出</h2>
+    <p class="sec-sub">规则文档（Guidelines）是下游<b class="hl">唯一的执行准绳</b>：把需求转化为「傻瓜式」执行规范，保证 32 个标注员不会出现 32 种动作。善用大模型辅助润色生成，但判定标准必须由训练师定义。</p>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">📄 文档标准结构</h3>
+      <table class="cmp" style="margin-top:8px">
+        <tr><th>模块</th><th>内容</th><th>性质</th></tr>
+        <tr><td><b>背景</b></td><td>所属模型、业务目标、训练阶段</td><td>必备</td></tr>
+        <tr><td><b>标注概要</b></td><td>总量、交付时间、人员配置</td><td>必备</td></tr>
+        <tr><td><b>标注规则 + Case</b></td><td>判断维度与依据：什么是好数据、什么是坏数据</td><td>必备</td></tr>
+        <tr><td><b>标注方案</b></td><td>劣质数据删除还是人工改写等实施策略</td><td>必备</td></tr>
+        <tr><td><b>标注流程 / 排期 / 验收标准</b></td><td>提升标注员理解效率</td><td>辅助</td></tr>
+      </table>
+      <div class="quote" style="margin-top:12px"><b>Case 是文档的灵魂：</b>正例 Good Case（正确范式）+ 负例 Bad Case（易错点与错因）+ 边界案例 Edge Case（模糊地带处理标准），三者缺一不可。</div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">📐 评价维度：通用五维 + 专项加权</h3>
+      <ul class="pts">
+        <li><b>安全性 Safety：</b>回答有没有害？涉政违法、价值观、风险规避</li>
+        <li><b>准确性 Accuracy：</b>是不是事实？有没有幻觉？</li>
+        <li><b>有帮助性 Helpfulness：</b>是否正面解决用户问题（满足度）</li>
+        <li><b>无害性 Harmlessness：</b>有无歧视、偏见、冒犯</li>
+        <li><b>格式 Format：</b>排版、长度、结构、语言一致性</li>
+      </ul>
+      <table class="cmp" style="margin-top:8px">
+        <tr><th>专项类型</th><th>重点维度</th></tr>
+        <tr><td>医疗问答</td><td>准确性、安全性权重极高 + 免责声明自然植入</td></tr>
+        <tr><td>创意写作</td><td>流畅性、创造力、格式</td></tr>
+        <tr><td>代码生成</td><td>可运行性、简洁性、注释质量</td></tr>
+        <tr><td>客服对话</td><td>礼貌性、解决率、简洁度</td></tr>
+        <tr><td>多轮对话</td><td>上下文连贯性、记忆一致性、意图识别</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="font-size:15px;font-weight:800">🔄 规则不是写完就不动的 · 四个迭代触发器</h3>
+    <div class="grid g4" style="margin-top:10px">
+      <div class="card" style="padding:12px"><b style="font-size:13px">🐛 发现新问题</b><div class="note" style="margin-top:4px">标注员反馈某类 case 没覆盖到</div></div>
+      <div class="card" style="padding:12px"><b style="font-size:13px">📊 数据分析</b><div class="note" style="margin-top:4px">某维度分歧太大 = 定义不清</div></div>
+      <div class="card" style="padding:12px"><b style="font-size:13px">🔄 模型迭代</b><div class="note" style="margin-top:4px">模型能力变了，规则跟着升级</div></div>
+      <div class="card" style="padding:12px"><b style="font-size:13px">🌍 市场变化</b><div class="note" style="margin-top:4px">新地区要加当地文化/法律规则</div></div>
+    </div>
+    <p class="note">试标过程中以及试标后拉齐规则，过程反哺规则文档；业务方验收后根据 Bad Case 对齐双方规则，持续优化。</p>
+  </div>
+  <div class="src"><b>来源：</b>第一周笔记「撰写《规则文档》」+ 第二周笔记「规则维度是固定的吗」+ 多模态笔记「结构化描述」</div>
+</section>
+
+<section id="manage" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">07 · PM & QC</span>
+    <h2 class="sec-title">项目管理与质量把控</h2>
+    <p class="sec-sub">面试必考「排期规划」逻辑：<b class="hl">项目总耗时 = 总数据量 ÷ (人效 × 人数)</b>，且必须预留容错率（请假、规则突变）。下面是一个可交互的排期计算器。</p>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🧮 项目排期计算器</h3>
+      <div class="calc">
+        <div><label>数据总量（条）</label><input type="number" id="c-total" value="40000"></div>
+        <div><label>团队人数</label><input type="number" id="c-people" value="10"></div>
+        <div><label>单人日人效（条/天）</label><input type="number" id="c-eff" value="80"></div>
+        <div><label>质检比例（%）</label><input type="number" id="c-qc" value="30"></div>
+        <div><label>容错缓冲（天）</label><input type="number" id="c-buf" value="5"></div>
+      </div>
+      <div class="calc-out">
+        <div class="co"><div class="v" id="o-base">–</div><div class="k">基础标注天数</div></div>
+        <div class="co"><div class="v" id="o-qc">–</div><div class="k">质检追加天数</div></div>
+        <div class="co"><div class="v" id="o-deliver">–</div><div class="k">建议交付天数（含容错）</div></div>
+      </div>
+      <p class="note">课堂示例：40000 条 ÷ (10 人 × 80 条/天) = 50 天基础排期；质检与容错另计。人效无固定标准——先自己跑 10–20 条得出体感（约 1–2 分钟/条），单轮 vs 多轮、复杂场景 vs 单一主体差异很大。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🛡️ 三层质量防线</h3>
+      <div class="flow-steps" style="flex-direction:column;align-items:stretch">
+        <div class="fs"><b>① 标注员自检 / 互检</b>主观数据「三人盲标，取最大共识」；每日在线复盘解决争议 case</div>
+        <div class="fs"><b>② 质检员抽检 30%–40%</b>医疗/法律等严谨领域 100% 全检；评测项目抽检常见 10%–15%</div>
+        <div class="fs"><b>③ 训练师二次抽检</b>训练师抽检质检员，保证质量不下滑；共性问题收集进备注文档 / bad case 库</div>
+      </div>
+      <h3 style="font-size:15px;font-weight:800;margin-top:16px">👥 团队构成与准入</h3>
+      <ul class="pts">
+        <li><b>内包/实习生：</b>稳定好用，适合高质量垂直领域（如清北/博士实习生）</li>
+        <li><b>供应商/外包：</b>适合大规模、低难度任务</li>
+        <li><b>众包：</b>分散灵活，但质量波动大</li>
+        <li><b>准入机制：</b>试标准确率 ≥90% 才能进正式项目；评测岗试标通过线 80%，最多 3 次机会否则换人</li>
+      </ul>
+    </div>
+  </div>
+  <div class="src"><b>来源：</b>第一周笔记「项目全流程管理 / 排期公式 / 质检比例」+ 评测笔记「试标 / 正式评测 / 质检」+ AI竞品分析＆评测「人效标准」</div>
+</section>
+
+<section id="eval" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">08 · Evaluation</span>
+    <h2 class="sec-title">评测体系 · 给 AI 大脑做全面考试</h2>
+    <p class="sec-sub">核心区别：<b class="hl">标注最终交付的是数据，评测最终交付的是评测报告</b>。评测是 PM/训练师无法被 AI 替代的核心能力，大厂面试必考。数据量级 100–300 条（最多 400–500），切勿与 SFT 的几千几万条混淆。</p>
+  </div>
+  <div class="grid g3">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">📚 评测集构建三维度</h3>
+      <ul class="pts">
+        <li><b>模型陌生的：</b>必须是模型完全没见过的全新数据（高中生不能用小学题考试）</li>
+        <li><b>多维度丰富的：</b>不同题型混合（应用题/选择题/填空…）</li>
+        <li><b>难度梯度：</b>简单/中等/困难搭配</li>
+      </ul>
+      <p class="note">示例 K12 数学：学段（小/初/高）× 题型（算术/奥数/应用）× 难度。来源含网络拉取（优先近期时效数据）、第三方采购等（课件四大来源表）；按场景分类每类 ≥20 条。定期收集（日常顺手归档）+ 定期更换（防过时）；网络数据重复由算法校验后补充。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🎯 三种评测方法</h3>
+      <ul class="pts">
+        <li><b>对比法 GSB：</b>A 比 B 好(G)/一样(S)/差(B)；SBS 细化为 7 档。直观快速，但难量化、难定位问题</li>
+        <li><b>评分法：</b>5/4/3/2/1 五档或三档制，维度建议 4–6 个，每档必须配明确解释。可量化、可定位弱项，但人力成本高</li>
+        <li><b>二值判断：</b>通过/未通过。简单高效，但主观性强、无法定位</li>
+      </ul>
+      <p class="note"><b>混合评测策略</b>（GSB+评分 / 二值+评分）弥补定位能力；<b>双盲多人评测</b>同一批数据避免单人主观偏差。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🔺 置信度三角（面试重点）</h3>
+      <ul class="pts">
+        <li><b>评测集构建：</b>陌生 × 多维 × 难度梯度保证科学性</li>
+        <li><b>方法选择：</b>快速验证用对比法，精准定位用评分法，高置信要求用混合法</li>
+        <li><b>标注方式：</b>双盲 + 多人评测增加支撑度</li>
+      </ul>
+      <p class="note">评分统计三方式：各维度平均分 / 整体满意度 =（非常满意+满意）÷ 总量 / 问题占比 = 有问题数据 ÷ 总数。档位设计要「说得通」，避免冗余档位。</p>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🧮 GSB 盈率计算器</h3>
+      <p class="note" style="margin-top:6px">盈率 = (G 数量 + S 数量 ÷ 2) ÷ 总样本数 —— S 平分一半给 G、一半给 B。</p>
+      <div class="calc">
+        <div><label>G（A 更好）</label><input type="number" id="g-g" value="46"></div>
+        <div><label>S（一样好）</label><input type="number" id="g-s" value="30"></div>
+        <div><label>B（A 更差）</label><input type="number" id="g-b" value="24"></div>
+      </div>
+      <div class="calc-out">
+        <div class="co"><div class="v" id="o-win">–</div><div class="k">模型 A 盈率</div></div>
+        <div class="co"><div class="v" id="o-total">–</div><div class="k">总样本数</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">📑 评测报告五大模块</h3>
+      <ul class="pts">
+        <li><b>① 评测信息：</b>目的背景 / 模型版本号+发布日期（如 doubao-seed-0410）/ 有效与无效数据说明 / 人员</li>
+        <li><b>② 评测标准：</b>评分维度（约 5 个）/ 方法（如 GSB+评分混合）/ 评分卡详解</li>
+        <li><b>③ 评测结果：</b>分批数据 + 盈率 + 平均分，必须量化</li>
+        <li><b>④ 核心结论：</b>各模型优缺点 + 排序（如 B&gt;C&gt;A）——最体现能力</li>
+        <li><b>⑤ 具体案例：</b>经典 Bad Case + <b>算法校验回复</b>（如「切块上下断点导致召回不全」），为优化提供依据</li>
+      </ul>
+      <p class="note">紧急交付用简化版：<b>结论前置</b>，保留结果+结论+经典 case。流程管理：试标 20–30 条 → 规则 1.0 → 培训试标（80% 通过线）→ 正式评测每人每天 100–600 条 → 交付预留约 5 天缓冲。</p>
+    </div>
+  </div>
+  <div class="src"><b>来源：</b>AI训练师-评测-课程笔记（全文）+ AI竞品分析＆评测「评测集构建关键」</div>
+</section>
+
+<section id="auto" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">09 · Automation</span>
+    <h2 class="sec-title">自动化提效 · 做流水线的设计师，不是工人</h2>
+    <p class="sec-sub">自动化数据工作流 = 用脚本规则 + 高智商模型，接管<b class="hl">采集、清洗、扩写、标注、质检、评测</b>环节。人类不可替代的价值：主观审美、情绪感知、社会热点嗅觉，以及「洞察问题 → 制定提效方案 → 实施验证」的思路。</p>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">⚙️ RPA vs IAA</h3>
+      <ul class="pts">
+        <li><b>RPA 机器人流程自动化：</b>规则匹配 If-Then，适合高度结构化任务（如提取 Excel 含「吃饭」关键词的行）</li>
+        <li><b>IAA 智能化流程自动化：</b>AI/NLP + RPA，能意图识别与模糊匹配，不仅执行规则还能「理解」规则</li>
+      </ul>
+      <h3 style="font-size:15px;font-weight:800;margin-top:14px">🛠️ 三大提效工具（写进简历）</h3>
+      <ul class="pts">
+        <li><b>PE 提示词：</b>重复性描述任务；结构化 Prompt 约束模型按格式输出</li>
+        <li><b>工作流/智能体：</b>Coze（低代码最简）/ Dify（B端常用）/ n8n（专业性强）；节点 = 变量接力，SP 全局规则权限高于 User PE</li>
+        <li><b>Python 脚本：</b>十万级数据清洗/生成最高效；AI IDE（Cursor）写脚本调 API。API 三要素：URL + API Key + Model。真实案例：150 条数据分类人工 1 小时 → 脚本 2 分钟，团队提效 20–30%</li>
+      </ul>
+      <p class="note">⚠️ 组织合规红线：部分传统/军工企业禁用自动化工具，只能 Excel 手工处理。Skill 技能包 = Markdown 规则文档 + 渐进式按需调用，省 Token；可做「人性化改写」（不同 MBTI/情绪/长短句）避免数据同质化。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🔁 PE 生产闭环六步法</h3>
+      <div class="flow-steps" style="flex-direction:column;align-items:stretch">
+        <div class="fs"><b>① 需求分析与拆解</b>明确理想态：目标、输入格式、字段、业务边界</div>
+        <div class="fs"><b>② 能力摸底</b>判断模型能力边界能否胜任——方向错了调优徒劳</div>
+        <div class="fs"><b>③ 编写初始 PE</b>清晰明确、Markdown 结构化、上下文+示例、要求自查</div>
+        <div class="fs"><b>④ 归因与验收</b>小步快跑每次只调一个点；Bad Case 归因（语义误解/细节缺失/格式错误）</div>
+        <div class="fs"><b>⑤ 循环测试调优</b>多模型 A/B Test 防「偷懒」；连续 5 次以上稳定达标</div>
+        <div class="fs"><b>⑥ 批量验收落地</b>扩样本跑批 + 随机抽检；记录投产前后对比（8 分钟→5 分钟，质量 3.6→4.3）= 面试核心亮点</div>
+      </div>
+      <p class="note">PE 真实工作状态：20% 构建初始框架，80% 微调迭代。图像优化 PE 推荐<b>反向推导法</b>：原图+原 Prompt+糟糕生成图全给模型 → 让它分析问题 → 自写新 Prompt → 验证出好图 → 反推通用 PE 框架。</p>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="font-size:15px;font-weight:800">⚖️ LLM as a Judge 自动化评测避坑</h3>
+    <div class="grid g3" style="margin-top:10px">
+      <div class="card" style="padding:12px"><b style="font-size:13px">先原因后打分</b><div class="note" style="margin-top:4px">模型基于下文预测，先分析再打分准确度远高于先打分后解释</div></div>
+      <div class="card" style="padding:12px"><b style="font-size:13px">警惕三大偏见</b><div class="note" style="margin-top:4px">位置偏见（偏爱 A）/ 冗长偏见（偏爱字多）/ 自我偏好（偏爱自家输出）</div></div>
+      <div class="card" style="padding:12px"><b style="font-size:13px">人机分工</b><div class="note" style="margin-top:4px">机器评重复、规律、标准性强的内容；人类负责审美、情绪、网感与高危合规判断</div></div>
+    </div>
+    <div class="quote"><b>面试必杀技 · 迪士尼故事框架：</b>背景（业务卡点多低效）→ 冲突（传统方法为何行不通）→ 思路（为何选 RPA/IAA/PE 方案）→ 成果（投产前后人效与准确率对比）。不要干巴巴罗列工具。</div>
+  </div>
+  <div class="src"><b>来源：</b>自动化（课程笔记全文）+ 多模态笔记「提效工具箱」</div>
+</section>
+
+<section id="glossary" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">10 · Glossary</span>
+    <h2 class="sec-title">核心术语速查</h2>
+    <p class="sec-sub">课程全部核心概念，按知识域分类，支持搜索与筛选。每条标注出处笔记。</p>
+  </div>
+  <div id="gl-controls">
+    <input id="gl-search" type="text" placeholder="🔍 搜索术语 / 英文 / 释义关键词…">
+    <div id="gl-cats"></div>
+  </div>
+  <div id="gl-grid"></div>
+  <div id="gl-empty">没有匹配的术语，换个关键词试试。</div>
+</section>
+
+<section id="timeline" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">11 · Timeline</span>
+    <h2 class="sec-title">课程时间线 · 15 场实录</h2>
+    <p class="sec-sub">2026-04-04 开营 → 2026-05-26，录音总时长约 <b class="hl">70 小时</b>。时间为录音转录实测数据；主题标签依据对应课程笔记推断。</p>
+  </div>
+  <div id="tl"></div>
+</section>
+
+<section id="career" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">12 · Career</span>
+    <h2 class="sec-title">职业进阶与面试通关</h2>
+    <p class="sec-sub">「不要仅仅为了找一份工作而来，要为了改变职业轨迹而来。」你原本的专业背景不是废纸，而是最大的护城河——<b class="hl">AI + 垂直行业</b>（医疗/法律/建筑/金融）是最大风口。</p>
+  </div>
+  <div class="grid g3">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">📈 3-6-2 进阶战略</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:14px">
+        <div class="career-step"><div class="cs-num" style="background:linear-gradient(135deg,var(--blue),var(--cyan))">起</div><div><b style="font-size:13.5px">起步期 · 前 1.5 个月</b><div class="note" style="margin-top:2px">高强度学习，掌握 AI 底层逻辑</div></div></div>
+        <div class="career-step"><div class="cs-num" style="background:linear-gradient(135deg,var(--purple),var(--pink))">累</div><div><b style="font-size:13.5px">积累期 · 3–6 个月</b><div class="note" style="margin-top:2px">入职中小厂/外包，真实项目积累战斗经验</div></div></div>
+        <div class="career-step"><div class="cs-num" style="background:linear-gradient(135deg,var(--orange),var(--rose))">爆</div><div><b style="font-size:13.5px">爆发期 · 2 年+</b><div class="note" style="margin-top:2px">深耕成长性初创公司，目标年薪 30 万+</div></div></div>
+      </div>
+      <p class="note">薪资参考：0–3 年主打高性价比执行力（12–15k）；3–5 年主打垂类深度+带兵打仗（15–20k+，项目经理/AI 产品助理级）。学历只是门槛，专业度、笔记质量、社交圈层才拉开差距。</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">🚪 过五关斩六将</h3>
+      <ul class="pts">
+        <li><b>① 简历被看见：</b>100 分简历，匹配系统与 HR 搜索标签</li>
+        <li><b>② 电话约面：</b>确认意向与基本背景</li>
+        <li><b>③ 业务一面：</b>全流程跟进能力 + 工具熟练度</li>
+        <li><b>④ PM/负责人二三面：</b>复杂项目管理、专业深度、抗压</li>
+        <li><b>⑤ HR 谈薪 Offer：</b>薪资结构与到岗时间</li>
+      </ul>
+      <p class="note">去向两类：大厂（阿里/美团/字节）+ 垂类头部（新能源车企的车载 Agent 生态需求极大）。Boss 策略：关个性化推荐破信息房；关键词扩搜「行业+AI / 数据运营 / AI产品运营 / 多模态模型调优」；状态改「离职随时到岗」。</p>
+      <div class="quote"><b>黄金 15 字打招呼：</b>[年限] + [核心行业/业务] + [核心结果/能力]。例：「两年医疗大模型评测经验，熟悉 RAG 流…」✗ 错误示范：「您好，请问还招人吗？」</div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:800">💎 简历稀缺标签</h3>
+      <ul class="pts">
+        <li><b>懂业务全流程：</b>需求对接→规则拆解→SOP→试标培训→质检验收</li>
+        <li><b>懂提效自动化：</b>AI 工具、PE、工作流提效（量化对比数据）</li>
+        <li><b>跨团队协同：</b>算法/产品/专职/外包复杂协作</li>
+        <li><b>隐藏加分项：</b>自媒体网感（多模态训练天赋证明）/ Python+SQL（降维打击）/ 外语（海外高薪项目）/ 硬核专业（垂类大模型直通）</li>
+      </ul>
+      <div class="quote"><b>面试杀手锏 · 个人知识库：</b>X 轴 = 工作流横向（需求承接/试标/培训/标注/质检验收/交付复盘方法论）；Y 轴 = 技术纵向（RAG/Agent/多模态 Prompt）+ 行业纵向（医疗红线/金融政策/车企规则）。本页就是这份知识库的可视化形态。</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <h3 style="font-size:15px;font-weight:800">⚠️ 面试复盘 · 致命坑清单（真实复盘笔记）</h3>
+    <div class="grid g4" style="margin-top:10px">
+      <div class="card" style="padding:12px;border-color:rgba(244,63,94,.4)"><b style="font-size:13px;color:var(--rose)">数据口径改口</b><div class="note" style="margin-top:4px">简历写人效 80→120，现场改口「大概 30%」= 涉嫌造假。统一口径或改真实数字后死背</div></div>
+      <div class="card" style="padding:12px;border-color:rgba(244,63,94,.4)"><b style="font-size:13px;color:var(--rose)">项目归属混淆</b><div class="note" style="margin-top:4px">智驾/具身/漫剧/评测边界说不清。口诀：智驾=标注带团队，具身=Caption 提效 50%，AIGC 评测=12 份横评报告，漫剧=Agent 工作流压缩到 6 小时</div></div>
+      <div class="card" style="padding:12px;border-color:rgba(245,158,11,.4)"><b style="font-size:13px;color:var(--orange)">术语发音</b><div class="note" style="margin-top:4px">GSB 不是 GBS；双盲不是双王。开放题停留在「开会确认需求」会被直接终止</div></div>
+      <div class="card" style="padding:12px;border-color:rgba(245,158,11,.4)"><b style="font-size:13px;color:var(--orange)">外行听不懂</b><div class="note" style="margin-top:4px">优势解释堆术语被打断。准备「电梯演讲」版；口头禅用停顿代替；自我介绍背熟 30 秒版</div></div>
+    </div>
+    <p class="note">讲项目黄金公式（竞品分析课）：痛点 → 手段 → 结果，并在背景里刻意埋「钩子」关键词引导追问。离职原因优先不可抗力 + 对学习的渴望，不吐槽前公司。</p>
+  </div>
+  <div class="src"><b>来源：</b>第一周笔记「3-6-2 战略」+ 🚀 AI训练师冲刺阶段：面试简历指导课 + 面试复盘笔记 + AI竞品分析＆评测</div>
+</section>
+
+<section id="sources" class="reveal">
+  <div class="sec-head">
+    <span class="sec-tag">13 · Sources</span>
+    <h2 class="sec-title">来源引用</h2>
+    <p class="sec-sub">本知识库全部内容提炼自你的本地课程资料（人格库 · 05_AI知识库 · 02_AI训练师原件），风格参照 <a href="https://github.com/Harry-LYL/ai-pm-qieman-academy" target="_blank">ai-pm-qieman-academy</a> 交互式知识图谱。点击可在 Obsidian/编辑器中打开原文。</p>
+  </div>
+  <div class="grid g2" id="src-grid"></div>
+</section>
+</div>
+
+<div id="view-overlay">
+  <div id="view-topbar">
+    <div class="r1">
+      <button class="back" onclick="closeView()">← 返回地图</button>
+      <span class="div"></span>
+      <div class="tt"><span class="ic" id="view-icon"></span><h1 id="view-title"></h1><span class="bd" id="view-badge"></span><span class="sb" id="view-sub"></span></div>
+      <div class="pn"><button onclick="navView(-1)" title="上一个 (←)">‹</button><button onclick="navView(1)" title="下一个 (→)">›</button></div>
+      <button class="tbtn" onclick="openSearch()">🔍</button>
+      <button class="tbtn" id="theme-btn2">🌙</button>
+    </div>
+  </div>
+  <div id="view-quicknav"><div class="in" id="quicknav"></div></div>
+  <div id="view-scroll"><div id="view-content"></div></div>
+</div>
+
+<div id="search-modal"><div id="search-box">
+  <input id="search-input" type="text" placeholder="搜索全库：术语 / 环节 / 项目 / 方法论…（Esc 关闭）">
+  <div id="search-results"></div>
+</div></div>
+
+<script>
+
+/* ================= DATA ================= */
+const CHAIN=[
+{n:'01',t:'需求承接与拆解',en:'Intake · 5W2H',one:'承接两类上游需求，用 5W2H 开会拉齐信息，把抽象需求转化为可执行的数据生产标准。',pts:['<b>两类上游：</b>AI 产品经理（体验/缺陷驱动，如「打车地址识别不准」）；算法工程师（能力驱动，如「问答能力弱，需补语料」）','<b>5W2H：</b>Why 背景（提升哪个阶段能力）/ What 数据类型·量级·准确率 / Where 平台（火山线上 or 线下 Excel）/ When 排期 / Who 人员 / How 实施（劣质数据删除还是改写）/ How much 计件成本','<b>四步明确：</b>精确数据量 → 交付周期 → 标注规则 → 数据类型介绍 & 典型 case 展示','数据文档检查 → 文档承接完成，不能盲目开干'],m:[['5W2H','七个拉齐问题'],['2 类','上游需求方']],src:'第一周笔记 · 第二课「AI训练师的工作构成和职责」'},
+{n:'02',t:'原始数据核验',en:'Data Validation',one:'第一步永远是核验原始数据，不要盲目相信需求方说明；先产出总览报告，确认无误再动工。',pts:['<b>全量总览：</b>不要只看前几条，抽样扫一遍确认数据长相符合预期','<b>层级陷阱：</b>嵌套无数文件夹、格式混乱的数据要及时反馈','<b>质量欺诈：</b>宣称「高质量视频」可能全是静音或单调画面，无法用于多模态训练','所有需求方资源必须先产出「总览报告」'],m:[['1 份','总览报告先行'],['2 大','典型数据陷阱']],src:'第一周笔记 ·「数据把控：从需求方到真实素材」'},
+{n:'03',t:'撰写规则文档',en:'Guidelines',one:'把需求转化为「傻瓜式」执行规范，保证下游标注员动作统一——规则文档是唯一的执行准绳。',pts:['<b>结构：</b>背景 / 标注概要 / 标注规则 / 标注方案（必备）+ 流程 / 排期 / 验收标准（辅助）','<b>定义好坏：</b>什么是好数据、坏数据；政治敏感、色情暴力剔除标准；场景化改写标准','<b>Case 是灵魂：</b>正例 Good Case + 负例 Bad Case + 边界案例 Edge Case','<b>评价维度：</b>真实性/正确性、满足度、逻辑合理性、人情味/拟人化','善用大模型润色生成规则文档，提高效率'],m:[['4 模块','必备结构'],['3 类','Case 缺一不可']],src:'第一周笔记 ·「撰写《规则文档》」+ 第二周笔记'},
+{n:'04',t:'试标 Pilot',en:'Trial Annotation',one:'拿到规则先小范围测试，验证规则可落地；试标准确率低 = 规则文档有漏洞，优化后再正式下发。',pts:['<b>小范围测试：</b>约 30 条，找几个人先试','<b>留痕意识：</b>执行前必须得到需求方视频或文字确认，避免需求变更扯皮','<b>反哺规则：</b>试标过程中与试标后拉齐规则，修订文档','<b>准入机制：</b>试标准确率 ≥90% 才能进正式项目（评测岗 80% 通过线，最多 3 次机会否则换人）'],m:[['~30 条','试标规模'],['≥90%','人员准入线']],src:'第一周笔记 ·「需求承接与试标」+ 评测笔记「试标环节」'},
+{n:'05',t:'人员管理与排期',en:'Scheduling',one:'排期 = 总数据量 ÷ (人效 × 人数)，必须预留容错率；按任务难度选择团队形态。',pts:['<b>排期公式：</b>项目总耗时 = 总数据量 ÷ (人效 × 人数)，预留容错（请假、规则突变）','<b>团队形态：</b>内包/实习生（稳定、高质量垂类）· 供应商外包（大规模低难度）· 众包（灵活但质量波动）','<b>任务分配：</b>10 人团队如何分配标注 / 质检 / 验收人员','<b>流程监控：</b>随时看进度，确保排期内完成','人效无固定标准：先自己跑 10–20 条得 1–2 分钟/条体感'],m:[['量÷(效×人)','排期公式'],['3 类','团队形态']],src:'第一周笔记 ·「人员管理与排期」+ 竞品分析课「人效标准」'},
+{n:'06',t:'数据生产',en:'Production',one:'标注员按规则执行拉框、改写、排序、评测；训练师负责培训、答疑、争议解决与尺度统一。',pts:['<b>六大文本项目：</b>SFT 单轮 / 多轮、RM 排序、RAG、CoT、Agent','<b>多模态方向：</b>图片/视频生成与理解、ASR / TTS','<b>防偏机制：</b>主观数据「三人盲标，取最大共识」','<b>每日复盘：</b>在线解决争议 case，统一标注尺度；共性问题收集反哺规则','<b>高质量改写是王道：</b>发现不合格回答，亲自写出「满分范文」喂模型'],m:[['6+5','项目类型'],['3 人','盲标取共识']],src:'第二周笔记 ·「团队管理与职业进阶实战」+ 多模态笔记'},
+{n:'07',t:'质量把控 QC',en:'Quality Control',one:'三层防线：标注员自检互检 → 质检员抽检 → 训练师二次抽检质检员，保证质量不下滑。',pts:['<b>质检比例：</b>一般 30%–40%；医疗/法律等严谨领域 100% 全检','<b>评测项目：</b>抽检常见 10%–15%，复检/全检按重要性选择','<b>二次抽检：</b>训练师抽检质检员','<b>问题沉淀：</b>共性问题纳入备注文档 / bad case 库，为准确率提升与规则优化做准备'],m:[['30–40%','常规抽检'],['100%','严谨领域全检']],src:'第一周笔记 ·「质量把控」+ 评测笔记「质检环节」'},
+{n:'08',t:'交付与复盘',en:'Delivery & Review',one:'向产品/算法交付「理想态」数据 + 复盘报告——交付不仅是给数据，更要给结论。',pts:['<b>数据分析：</b>总量、准确率、人效分布','<b>Bad Case 总结：</b>哪些数据模型总是表现不好，给算法迭代建议','<b>规则优化建议：</b>为下一批次任务沉淀经验','业务方验收后提出 badcase → 分析对齐双方规则 → 持续优化规则文档'],m:[['3 模块','复盘报告'],['理想态','数据交付标准']],src:'第一周笔记 ·「复盘与交付」'},
+{n:'09',t:'模型训练',en:'PT → SFT → RLHF',one:'算法主导训练，训练师的数据决定「食材」质量：预训练打底座，SFT 教说话，RLHF 学偏好。',pts:['<b>三要素：</b>数据=食材（训练师核心阵地）· 算力=火候 · 算法=菜谱','<b>PT 预训练：</b>千亿–万亿 Token → Base Model；训练师辅助数据清洗','<b>SFT：</b>行业 60–70% 项目；几千–几万条问答对，教模型听指令','<b>RLHF：</b>RM 学人类偏好排序反向指导迭代；DPO 用偏好对简化'],m:[['3 阶段','训练链路'],['60–70%','SFT 项目占比']],src:'第一周笔记 · 三大要素 + 第二周笔记 · 训练两大阶段'},
+{n:'10',t:'模型评测',en:'Evaluation',one:'给模型做「全新考试」：陌生评测集 + 合适方法 + 量化报告，定位问题指明优化方向。',pts:['<b>评测集：</b>陌生 × 多维 × 难度梯度；100–300 条（区别于 SFT 几千几万）','<b>三方法：</b>GSB 对比 / 评分法 / 二值判断，混合策略提升置信度','<b>双盲多人：</b>避免单人主观偏差','<b>报告五模块：</b>信息 / 标准 / 结果 / 核心结论 / 案例（含算法校验回复）','标注交付数据，评测交付报告'],m:[['100–300 条','评测量级'],['5 模块','报告结构']],src:'AI训练师-评测-课程笔记（全文）'},
+{n:'11',t:'迭代闭环',en:'Feedback Loop',one:'Bad Case 归因 → 规则优化 → 下一批次投喂，数据飞轮转起来；评测集也要定期更换防过时。',pts:['<b>归因：</b>数据问题 or 模型问题？算法校验回复（如「切块上下断点导致召回不全」）','<b>投喂节奏：</b>小批量 3000 条 → 效果评估 → 正向反馈加大至 5000–10000 条','<b>规则迭代四触发：</b>新问题 / 维度分歧大 / 模型迭代 / 市场变化','<b>评测集维护：</b>日常顺手收集归档，定期更换（别用小学试卷测高中生）'],m:[['3000→10000','渐进投喂'],['4 触发','规则迭代']],src:'第二周笔记 ·「专项训练与项目落地」+ 评测笔记'}
+];
+const LANE_STAGES=['需求','规则','试标','生产','质检','交付','训练','评测'];
+const LANES=[
+{role:'AI 产品经理',c:'#10b981',cells:['提出体验/缺陷需求','确认规则与试标','视频/文字留痕确认','','','验收数据 + 提 Bad Case','','提出评测需求']},
+{role:'算法工程师',c:'#8b5cf6',cells:['提出模型能力需求','审核规则维度','','','','接收理想态数据','主导 PT/SFT/RLHF','校验 Bad Case 原因']},
+{role:'AI 训练师',c:'#3b82f6',cells:['5W2H 拆解拉齐','撰写规则文档','组织试标 + 反哺规则','排期/培训/答疑/争议','二次抽检质检员','数据 + 复盘报告','供数 + 优化建议','评测方案 + 评测报告']},
+{role:'数据标注员',c:'#06b6d4',cells:['','学习规则文档','试标 ≥90% 准入','正式标注/改写/排序','自检 + 互检','','','']},
+{role:'质检员',c:'#f59e0b',cells:['','','','','抽检 30–40%','复检','','']},
+{role:'评测标注员',c:'#f43f5e',cells:['','','试标 20–30 条','','','','','双盲评测 100–600 条/日']}
+];
+const PROJECTS=[
+{id:'single',ico:'📝',name:'SFT 单轮问答',en:'Single-turn QA',c:'#3b82f6',goal:'独立问答对，教模型「好好说话、认真回答」。问题不含上下文，答案直接对应问题，标注相对简单。',pts:['<b>八大维度：</b>事实正确 / 基础质量 / 信息丰富度 / 实用性 / 创造性 / 专业度 / 表达水平 / 排版','<b>比较标准：</b>完全相关＞部分相关；内容响应＞格式响应；回答语言与问题一致','<b>基础质量排序：</b>一次性错误＞语法错误＞截断错误＞有害信息','<b>丰富度：</b>多角度有效信息＞总结提炼＞细节完整＞合理延展','<b>风险规避：</b>医疗/法律/财务自然植入免责声明，避免机械复制导致过拟合'],warn:'发现不合格回答 → 训练师亲自改写「满分范文」，这是核心价值。'},
+{id:'multi',ico:'💬',name:'SFT 多轮问答',en:'Multi-turn QA',c:'#06b6d4',goal:'连续多回合交互中保持上下文连贯与逻辑。后续问题依赖前面答案，标注需理解整个对话流程。',pts:['<b>首重意图识别：</b>听懂弦外之音——用户是求助、调侃还是发泄情绪','<b>上下文连贯：</b>问题需携带前几轮问答内容','<b>记忆一致性：</b>前后信息不矛盾','<b>答案复杂性：</b>需结合前文推断，难于单轮'],warn:'多轮耗时显著高于单轮，排期人效要分开估算。'},
+{id:'rm',ico:'🏅',name:'RM 奖励模型',en:'Reward Model / RLHF',c:'#10b981',goal:'多模型对同一问题生成不同回答（GPT-4 / o1 / 文心 / 豆包 / 通义），人工排序构造 rewards 数据——RLHF 最重要环节。',pts:['<b>① 两两比对：</b>N 个回答 pairwise 比较','<b>② 完整排序：</b>由对比结果生成回答排序','<b>③ 三人一致性：</b>对比多人标注一致性','<b>④ 取高一致率：</b>只采用高一致部分，有问题重新标注','<b>⑤ 争议讨论：</b>难一致 case 讨论优化标准细节','<b>DPO 变体：</b>1 个偏好回答 + N 个非偏好回答，直接偏好优化'],warn:'RLHF 复杂不稳定、PPO 计算开销高——理解 DPO 为何出现。'},
+{id:'rag',ico:'📚',name:'RAG 检索增强',en:'Retrieval-Augmented Generation',c:'#8b5cf6',goal:'考「阅读理解」：模型先查知识库再回答。解决幻觉、专业知识匮乏、时效性、可解释性四大局限。',pts:['<b>必须丢弃：</b>用户提问逻辑混乱；检索材料严重缺失或致命矛盾','<b>必须改写：</b>模型未结合材料；「根据您提供的材料…」机翻感话术','<b>常识特例：</b>基础常识（如中国首都）即使材料错误，也要依自有知识作答并改写正确','<b>功能评测：</b>文档召回准确率 / 抓取速度 / 附件解析速度','<b>内容评测：</b>输出丰富度 / 结合知识库程度 / 回答准确性'],warn:'RAG 标注员要同时判断「材料质量」与「答案质量」两层。'},
+{id:'cot',ico:'🧠',name:'CoT 思维链',en:'Chain-of-Thought',c:'#f59e0b',goal:'在问题与答案之间插入中间推理步骤，让模型「三思而后行」。提升算术/常识/符号推理。',pts:['<b>优质四标准：</b>逻辑完整无断裂 / 精准抓深层意图 / 高效无废话 / 类人高级分析视角（惊喜感）','<b>数据三来源：</b>给示例 Few-Shot 扩写；人工增强旧输出；系统级提示生成带反思验证的回答','<b>两种形态：</b>Prompting CoT（改提示不动参数）vs 训练时 CoT（微调数据含推理过程）','<b>行业应用：</b>教育解题 / 金融风控 / 医疗诊断推理'],warn:'CoT 数据构造成本高、长文本吃显存；简单检索/闲聊任务收益不明显。'},
+{id:'agent',ico:'🤖',name:'Agent 智能体',en:'Agent Annotation',c:'#ec4899',goal:'考「规划与工具调用」：LLM 大脑 + 工具手脚 + 自主执行。从回答问题跃升为执行任务。',pts:['<b>参数校验：</b>严格核对入参与用户需求、工具定义一致','<b>缺失追问：</b>需求模糊绝不能盲目默认参数，必须生成反问（「请问预定多长时间的会议室？」）','<b>三大基石：</b>规划 Planning（拆解+反思纠错）/ 记忆 Memory（短期上下文+长期偏好）/ 工具 Tools','<b>评测维度：</b>任务规划 / 工具调用 / 任务执行 / 思考准确性与逻辑合理性'],warn:'Agent 标注重点不是文字优美，而是「行为正确」。'}
+];
+const MM=[
+{id:'img',ico:'🖼️',name:'图片生成标注',en:'Text-to-Image',c:'#ec4899',goal:'训练文生图模型的「刷题式学习」数据：低质量筛选 → 标签分类 → Caption 结构化描述。',pts:['<b>低质量筛选：</b>命中任一低质类型即标注并自动跳过（分辨率/曝光/安全性等）','<b>分类三目的：</b>数据整理（上千张分门别类）/ 精准投喂（算法要某类直接提取）/ 数据溯源（定位调参问题 vs 数据问题）','<b>Caption 公式：</b>主体描述（人物数量动作）+ 修饰词细节 + 艺术风格（流派/摄影/技术参数 4K/8K）','<b>结构化三收益：</b>效率统一 / 质检好核验 / 32 人不出现 32 种描述','<b>落地三方案：</b>PE 约束输出 / Coze·Dify 工作流团队共享 / Python 脚本批量'],warn:'坑：模型污染——泰坦尼克号图片会让模型脑补剧情，Prompt 须约束「不联想已知 IP」。'},
+{id:'vid',ico:'🎬',name:'视频生成标注',en:'Text-to-Video',c:'#f43f5e',goal:'训练文生视频模型，视频通常 5–15 秒（阿里实操标准）。在图片维度上新增视频特有判断。',pts:['<b>新增维度①：</b>帧率/流畅度——卡顿掉帧，每帧可视为图片但需整体流畅','<b>新增维度②：</b>全文字/无画面视频（黑底白底纯文字、只有声音）','<b>核心标签：</b>镜头运动（推拉摇移跟升降…）是视频标签灵魂','<b>Caption 公式：</b>图片描述 + 镜头运动轨迹 + 氛围（如「镜头从右侧缓慢平移至前方，略微向前推进 10%」）'],warn:'微小运动要不要描述？要——镜头运动是文生视频模型的关键学习信号。'},
+{id:'und',ico:'👁️',name:'图片/视频理解',en:'VLM Understanding',c:'#8b5cf6',goal:'提高模型理解画面并回答问题的能力：对回答正确性评估与改写，用 SFT 数据训练。',pts:['<b>标注两步法：</b>先判数据有效性（6 大维度），再判答案正确性（4 大维度）——详见课件表','<b>数据来源：</b>模型合成数据 + 用户真实数据','<b>VLM 应用：</b>自动驾驶（理想/蔚来/特斯拉/小米）/ 机器人取物 / 扫地机距离判断 / AI 面试 / 试卷阅卷（+OCR）','<b>前沿：</b>情绪识别——作业帮 AI 家教分析学生表情调整讲解节奏'],warn:'医疗、法律、金融数据不要硬答，直接标记「专业领域限制」。'},
+{id:'asr',ico:'🎙️',name:'ASR 语音识别',en:'Speech → Text',c:'#06b6d4',goal:'把人类语音转成可读文本：分析处理语音信号，将词汇内容以文字呈现。',pts:['<b>数据有效性：</b>先判音频是否可用（无效维度见课件表）','<b>转写 7 大原则：</b>忠实发音、规范用字等（课件表）','<b>方言处理：</b>如「莫得」按课程转写规则处理，不能随意普通话化','<b>应用场景：</b>字幕生成 / 语音助手 / 会议转录 / 客服质检'],warn:'转写不是听写比赛——规则文档定义方言、语气词、噪声的统一处理。'},
+{id:'tts',ico:'🔊',name:'TTS 语音合成',en:'Text → Speech',c:'#10b981',goal:'让机器开口说话：文本分析（分词/多音字）→ 韵律建模（语速/音调）→ 语音合成。数据精细度决定合成自然度。',pts:['<b>标注目标：</b>校验拼音——多音字（重点）、轻声、儿化、三三变调、一/不变调','<b>轻声标 5：</b>妈妈/星星、句尾语气词、的地得着了、鼻子耳朵、墙上、坐下过来','<b>三三变调：</b>连续两个 3 声第一个变 2 声（雨伞 yu6 san3）；单双格/双双格按结构变','<b>不变调：</b>去声前读 2 声（一致/不错），非去声前读 4 声（一直/不好），动词中间读轻声（看一看）','<b>儿化音：</b>前一字拼音加 r（花儿 huar1）','<b>流程：</b>读文本 → 逐字校对 → 错误标红（文本+原拼音+改后拼音）→ 按规则改写 → 提交质检'],warn:'未经精细化标注的语料 → 合成语音 30%+ 不自然（吞音/模糊/非标准发音）。多音字判定要查网上资料，不凭常识。'}
+];
+const GLOSSARY=[
+{t:'AI 训练师',en:'AI Fine-tuning / 数据运营',cat:'角色',d:'给模型提供优质数据的人。大模型是黑盒，训练师准备高质量、干净、准确的「食材」引导模型向正确方向学习。从外包标注演进到数据运营、Prompt 工程、业务流梳理、AI 项目管理。',from:'第一周笔记'},
+{t:'数据 / 算力 / 算法',en:'Data / Compute / Algorithm',cat:'模型基础',d:'训练三要素，类比做菜：数据=食材（决定智商上限，训练师核心阵地）、算力=火候（GPU）、算法=菜谱（Transformer 架构，算法工程师范畴）。',from:'第一周笔记'},
+{t:'参数',en:'Parameters',cat:'模型基础',d:'模型内部处理信息的变量，类比神经元连接。后缀 B=Billion 十亿，32B=320 亿参数，相当于脑容量，越大处理复杂逻辑越强。',from:'第一周笔记'},
+{t:'Token',en:'Token',cat:'模型基础',d:'模型读文字的最小单位（文字碎片）。注意与 API 的 Token（身份凭证/通行证）区分。',from:'第二周笔记'},
+{t:'幻觉',en:'Hallucination',cat:'模型基础',d:'模型一本正经胡说八道的毛病。RAG 是缓解幻觉的有效方案。',from:'第二周笔记'},
+{t:'涌现',en:'Emergent Abilities',cat:'模型基础',d:'模型规模突破临界点后突然「开窍」，出现没专门教过的能力（数学/代码/推理/幽默诗歌）。量变引起质变。',from:'第一周笔记'},
+{t:'规模法则',en:'Scaling Law',cat:'模型基础',d:'参数越大、数据越多、算力越强，模型越聪明，且关系可预测。',from:'第二周笔记'},
+{t:'预训练',en:'Pre-training / PT',cat:'训练阶段',d:'无监督学习，投喂海量原始数据让模型自学预测下一 Token，产出 Base Model（什么都懂但不会对话）。数据来自 Common Crawl / HuggingFace。',from:'第二周笔记'},
+{t:'SFT',en:'Supervised Fine-Tuning',cat:'训练阶段',d:'有监督微调，「教它说话」。提供高质量问答对，让模型学会听指令与对话格式，从通才变垂类专才。行业 60–70% 项目集中于此。',from:'第二周笔记'},
+{t:'RLHF',en:'RL from Human Feedback',cat:'训练阶段',d:'基于人类反馈的强化学习，「自我进化」。人类打分排序，奖励模型学偏好反向指导大模型迭代。复杂不稳定、计算开销高。',from:'第二周笔记'},
+{t:'奖励模型',en:'Reward Model / RM',cat:'训练阶段',d:'充当裁判的独立模型，学习人类偏好，为强化学习提供奖励信号。人工排序是 rewards 数据构造最重要环节。',from:'第二周笔记'},
+{t:'DPO',en:'Direct Preference Optimization',cat:'训练阶段',d:'直接偏好优化，用 1 个偏好回答 + N 个非偏好回答构造样本，跳过独立 RM 拟合，简化 RLHF。',from:'第二周笔记'},
+{t:'RAG',en:'Retrieval-Augmented Generation',cat:'进阶技术',d:'检索增强生成，大模型的「外挂大脑」。回答前先查知识库/联网，解决幻觉、专业知识匮乏、时效性、可解释性四大局限。',from:'第二周笔记'},
+{t:'CoT',en:'Chain-of-Thought',cat:'进阶技术',d:'思维链，让模型「三思而后行」。在问答间插入中间推理步骤。分 Prompting CoT（改提示）与训练时 CoT（微调）。',from:'第二周笔记'},
+{t:'Agent',en:'Agent / 智能体',cat:'进阶技术',d:'LLM 大脑 + 工具手脚 + 自主执行。三大基石：规划 Planning、记忆 Memory、工具调用 Tools。从回答问题跃升为执行任务。',from:'第一/二周笔记'},
+{t:'MCP',en:'Model Context Protocol',cat:'进阶技术',d:'模型上下文协议，给「断网」的模型装上手，调用外部工具（高德地图/电脑操作）。配置：注册开发者→API Key→IDE 添加配置。',from:'第一周笔记 · 代码课'},
+{t:'多模态',en:'Multimodal',cat:'多模态',d:'集成处理两种及以上信息类型（文本/图像/音频/视频/3D），模拟人类五感。当前 AI 训练师最热门方向。',from:'多模态笔记'},
+{t:'扩散模型',en:'Diffusion Model',cat:'多模态',d:'文生图核心：用户 Prompt→CLIP 编码→特征向量→U-Net 降噪→VAE 解码→图像。训练=刷题式学习（生成→对比→算 Loss→调权重）。',from:'多模态笔记'},
+{t:'VLM',en:'Vision-Language Model',cat:'多模态',d:'视觉语言模型，识别画面动作/场景/情绪/内容。用于自动驾驶、机器人、AI 面试、阅卷（+OCR）、情绪识别。',from:'多模态笔记'},
+{t:'Caption',en:'Caption',cat:'多模态',d:'结构化数据描述。图片公式=主体+修饰细节+艺术风格；视频再加镜头运动+氛围。结构化保证效率/质检/一致性。',from:'多模态笔记'},
+{t:'镜头运动',en:'Camera Movement',cat:'多模态',d:'视频标签核心维度（推拉摇移跟升降），在图片标签基础上新增。微小运动也要描述，是文生视频关键学习信号。',from:'多模态笔记'},
+{t:'ASR',en:'Automatic Speech Recognition',cat:'多模态',d:'语音识别，语音→文本。标注先判数据有效性，再按转写 7 大原则处理方言/语气词/噪声。',from:'多模态笔记'},
+{t:'TTS',en:'Text-to-Speech',cat:'多模态',d:'语音合成，文本→语音。校验拼音：多音字/轻声(标5)/儿化/三三变调/一不变调。未精标语料→30%+ 不自然。',from:'多模态笔记'},
+{t:'三三变调',en:'Third-tone Sandhi',cat:'多模态',d:'连续两个 3 声第一个变 2 声（雨伞 yu6 san3）。单双格/双双格/单单单按结构变调。TTS 标注高频考点。',from:'多模态笔记'},
+{t:'具身智能',en:'Embodied Intelligence',cat:'前沿',d:'AI 与物理实体（机器人/机械臂）结合，通过身体与真实世界交互感知学习。如医疗手术机器人。',from:'第一周笔记'},
+{t:'VLA',en:'Vision-Language-Action',cat:'前沿',d:'视觉-语言-动作模型，具身智能与机器人领域最核心前沿范式。',from:'第一周笔记'},
+{t:'世界模型',en:'World Model',cat:'前沿',d:'AI 内部构建的「世界如何运转」虚拟模拟器/物理引擎，理解重力碰撞等物理规律（如 Sora）。',from:'第一周笔记'},
+{t:'AGI 五阶段',en:'5 Levels to AGI',cat:'前沿',d:'L1 聊天机器人→L2 推理者→L3 智能体→L4 创新者→L5 组织者。L1/L2 已实现，L3 部分，L4/L5 未实现。面试必背。',from:'多模态笔记'},
+{t:'5W2H',en:'5W2H',cat:'项目管理',d:'需求拆解法则：Why 背景/What 目标/Where 平台/When 排期/Who 人员/How 实施/How much 成本。接需求先开会拉齐。',from:'第一周笔记'},
+{t:'规则文档',en:'Guidelines',cat:'项目管理',d:'下游唯一执行准绳。结构=背景+标注概要+标注规则(含Case)+标注方案。Case 是灵魂：正例+负例+边界案例。',from:'第一/二周笔记'},
+{t:'试标',en:'Pilot / Trial',cat:'项目管理',d:'正式下发前小范围测试（约30条）验证规则可落地。准确率低=文档有漏洞。准入线≥90%（评测岗80%，最多3次）。',from:'第一周笔记'},
+{t:'排期公式',en:'Scheduling',cat:'项目管理',d:'项目总耗时 = 总数据量 ÷ (人效 × 人数)，必须预留容错率（请假/规则突变）。面试必考。',from:'第一周笔记'},
+{t:'三人盲标',en:'Triple-blind Consensus',cat:'质量管理',d:'主观数据三人独立盲标取最大共识，防多人协作偏差。建立在线复盘每日解决争议 case 统一尺度。',from:'第二周笔记'},
+{t:'质检比例',en:'QC Ratio',cat:'质量管理',d:'标注一般抽检 30–40%，医疗/法律 100% 全检；评测抽检 10–15%。训练师二次抽检质检员保证质量不下滑。',from:'第一周笔记'},
+{t:'Bad Case',en:'Bad Case',cat:'质量管理',d:'模型表现不好的典型案例。复盘报告核心，须附算法校验回复（如「切块断点致召回不全」），为优化指明方向。',from:'第一周/评测笔记'},
+{t:'理想态数据',en:'Ideal-state Data',cat:'质量管理',d:'训练师向产品/算法交付的高质量数据标准。交付不仅给数据，更要给复盘报告（数据分析+BadCase+规则优化）。',from:'第一周笔记'},
+{t:'评测集',en:'Evaluation Set',cat:'评测',d:'训练结束后评估最终能力的数据集，必须模型没见过。三维度：陌生×多维×难度梯度。100–300 条，区别于 SFT 几千几万。',from:'评测笔记'},
+{t:'GSB',en:'Good/Same/Bad',cat:'评测',d:'对比法：A 比 B 好(G)/一样(S)/差(B)。SBS 细化 7 档。直观快速但难量化定位。注意发音 GSB 不是 GBS。',from:'评测笔记'},
+{t:'盈率',en:'Win Rate',cat:'评测',d:'盈率 = (G数量 + S数量÷2) ÷ 总样本数。S 平分一半给 G 一半给 B。',from:'评测笔记'},
+{t:'评分法',en:'Scoring Method',cat:'评测',d:'预设维度打分，5/4/3/2/1 五档或三档，维度建议 4–6 个，每档配明确解释。可量化可定位，但人力成本高。',from:'评测笔记'},
+{t:'二值判断',en:'Binary Judgment',cat:'评测',d:'通过/未通过、是/否。简单高效结果明确，但主观性强无法定位具体问题。',from:'评测笔记'},
+{t:'混合评测',en:'Hybrid Evaluation',cat:'评测',d:'GSB+评分 或 二值+评分，弥补对比法/二值法缺少精准定位的缺陷，既直观判断又有维度数据供算法定位。',from:'评测笔记'},
+{t:'双盲评测',en:'Double-blind',cat:'评测',d:'多人同时评测同一批数据，增加置信度避免单人主观偏差。注意发音双盲不是双王。',from:'评测笔记'},
+{t:'置信度三角',en:'Confidence Triangle',cat:'评测',d:'保证公平公正三角度：评测集构建（科学）+ 方法选择（合适）+ 标注方式（双盲多人）。面试重点。',from:'评测笔记'},
+{t:'评测报告',en:'Evaluation Report',cat:'评测',d:'五模块：评测信息/评测标准/评测结果/核心结论/具体案例。核心结论最体现能力。紧急交付用简化版结论前置。',from:'评测笔记'},
+{t:'PE',en:'Prompt Engineering',cat:'自动化',d:'提示词工程。结构化框架 Role/Context/Task/Steps/Constraints/Output。20% 构建框架 80% 微调迭代。大厂仍高度重视。',from:'第一周/自动化笔记'},
+{t:'PE 六步法',en:'PE Lifecycle',cat:'自动化',d:'需求拆解→能力摸底→编写初始PE→归因验收(小步快跑)→循环调优(A/B防偷懒,连续5次稳定)→批量验收落地(记录前后对比)。',from:'自动化笔记'},
+{t:'RPA',en:'Robotic Process Automation',cat:'自动化',d:'机器人流程自动化，规则匹配 If-Then，适合高度结构化任务（提取 Excel 关键词）。',from:'自动化笔记'},
+{t:'IAA',en:'Intelligent Process Automation',cat:'自动化',d:'智能化流程自动化 = AI/NLP + RPA，能意图识别与模糊匹配，不仅执行还理解规则，边界更宽。',from:'自动化笔记'},
+{t:'工作流',en:'Workflow',cat:'自动化',d:'节点串联如电路，每节点 Input/Output 本质是变量接力。工具：Coze(低代码)/Dify(B端)/n8n(专业)。SP 全局权限高于 User PE。',from:'自动化笔记'},
+{t:'LLM as a Judge',en:'LLM as a Judge',cat:'自动化',d:'自动化评测避坑：先输出原因再打分（准确度更高）；警惕位置/冗长/自我偏好偏见；人机分工（机器评规律，人评审美合规）。',from:'自动化笔记'},
+{t:'反向推导法',en:'Reverse Derivation',cat:'自动化',d:'图像 PE 优化推荐：原图+原Prompt+糟糕图全给模型→让它分析问题→自写新Prompt→验证→反推通用 PE 框架。偷懒高效。',from:'自动化笔记'},
+{t:'Skill 技能包',en:'Skill',cat:'自动化',d:'把专业技能提炼成 Markdown 规则文档，主 MD 统筹+子文件渐进式按需调用，省 Token。可做人性化改写避免数据同质化。',from:'自动化笔记'},
+{t:'迪士尼故事框架',en:'Disney Story Framework',cat:'职业面试',d:'讲自动化项目：背景(业务卡点)→冲突(传统为何不行)→思路(为何选此方案)→成果(投产前后人效/准确率对比)。别罗列工具。',from:'自动化笔记'},
+{t:'3-6-2 战略',en:'3-6-2 Career Strategy',cat:'职业面试',d:'起步期前1.5月高强度学习→积累期3–6月入职中小厂/外包攒实战→爆发期2年+深耕初创目标年薪30万+。',from:'第一周笔记 · 代码课'},
+{t:'垂类护城河',en:'Vertical Moat',cat:'职业面试',d:'AI+垂直行业（医疗/法律/建筑/金融）是最大风口。原专业背景不是废纸而是护城河，懂垂类又懂 AI 调优拿极高溢价。',from:'第一周笔记'},
+{t:'个人知识库',en:'Personal Knowledge Base',cat:'职业面试',d:'面试杀手锏。X轴工作流横向(需求/试标/培训/标注/质检/交付方法论)+Y轴技术纵向(RAG/Agent/多模态)+行业纵向(医疗红线/金融政策)。',from:'面试简历指导课'},
+{t:'黄金 15 字',en:'Golden 15-char Pitch',cat:'职业面试',d:'Boss 打招呼前15字=[年限]+[核心行业/业务]+[核心结果/能力]。例「两年医疗大模型评测经验，熟悉RAG流…」。',from:'面试简历指导课'},
+{t:'过五关斩六将',en:'Interview Pipeline',cat:'职业面试',d:'简历被看见→电话约面→业务一面(全流程+工具)→PM二三面(项目管理+深度+抗压)→HR谈薪Offer。',from:'面试简历指导课'},
+{t:'数据口径一致',en:'Data Consistency',cat:'职业面试',d:'面试致命坑：简历写人效80→120现场改口「大概30%」=涉嫌造假。统一口径或改真实数字后死背。',from:'面试复盘笔记'},
+{t:'费曼学习法',en:'Feynman Technique',cat:'职业面试',d:'以输出倒逼输入。做自媒体(小红书/抖音)分享 AI 知识，打造个人 IP 同时加深理解，很多学长学姐因此被大厂 HR 发掘。',from:'第一周笔记'}
+];
+const TIMELINE=[
+{d:'2026-04-04',phase:'第一周',rec:'09:41–14:13 · 18:38–20:23',min:378,topic:'开营 + 模型初识与行业初窥（大模型/LLM/多模态/Agent/具身智能/行业格局）',link:'#training'},
+{d:'2026-04-05',phase:'第一周',rec:'10:02–13:09 · 13:43–14:09',min:213,topic:'训练师工作构成与职责（上下游/5W2H/规则文档/全流程管理）',link:'#chain'},
+{d:'2026-04-06',phase:'第一周',rec:'10:30–11:06 · 11:30–12:26',min:93,topic:'代码课（3-6-2 战略/Trae·Cursor/MCP/结构化 Prompt）',link:'#auto'},
+{d:'2026-04-11',phase:'第二周',rec:'10:16–12:07 · 13:35–14:29 · 14:37–16:34 · 17:30–23:08',min:624,topic:'模型训练两大阶段（PT/SFT/RLHF）+ 核心项目类型',link:'#training'},
+{d:'2026-04-12',phase:'第二周',rec:'10:06–11:49 · 13:46–14:09 · 14:15–17:28',min:320,topic:'RAG/CoT/Agent 能力进阶 + 数据标注与质检',link:'#projects'},
+{d:'2026-04-18',phase:'多模态',rec:'09:56–10:58 · 11:17–12:09 · 14:06–19:30',min:440,topic:'多模态项目实操（图片/视频生成与理解，阿里项目管理老师）',link:'#multimodal'},
+{d:'2026-04-19',phase:'多模态',rec:'10:01–12:42',min:162,topic:'语音项目 ASR/TTS + 提效工具箱',link:'#multimodal'},
+{d:'2026-04-26',phase:'评测',rec:'10:11–14:12',min:241,topic:'评测体系（评测集构建/三方法/置信度/报告）',link:'#eval'},
+{d:'2026-05-03',phase:'自动化',rec:'14:02–19:01',min:299,topic:'「42天课里最重要的一节」自动化与提效方法论',link:'#auto'},
+{d:'2026-05-04',phase:'评测+自动化',rec:'10:06–14:18 · 14:18–16:39 · 16:53–18:51 · 19:58–20:56',min:571,topic:'评测重要性 + PE/工作流/脚本实操',link:'#eval'},
+{d:'2026-05-05',phase:'自动化',rec:'10:08–16:07 · 16:59–18:01',min:423,topic:'自动化实操续（工作流/脚本案例 V1→V5 迭代）',link:'#auto'},
+{d:'2026-05-10',phase:'冲刺',rec:'10:00–12:12 · 13:28–16:34',min:319,topic:'面试简历指导课（过五关/100分简历/黄金15字）',link:'#career'},
+{d:'2026-05-20',phase:'复盘',rec:'14:33–14:35 · 15:55–16:13',min:20,topic:'面试复盘辅导（短录音）',link:'#career'},
+{d:'2026-05-21',phase:'复盘',rec:'13:45–14:26 · 16:19–16:46',min:68,topic:'面试复盘辅导',link:'#career'},
+{d:'2026-05-26',phase:'复盘',rec:'16:54–17:49',min:56,topic:'面试复盘 / 项目边界梳理',link:'#career'}
+];
+const SOURCES=[
+{f:'AI训练师-第一周笔记',p:'提取文本/AI训练师课程内容相关__AI训练师-第一周笔记.txt',d:'模型初识 · 训练师职责 · 5W2H · 规则文档 · 全流程管理 · 3-6-2 战略 · 代码课'},
+{f:'AI训练师-第二周笔记',p:'提取文本/AI训练师课程内容相关__AI训练师-第二周笔记.txt',d:'PT/SFT/RLHF · RAG/CoT/Agent · 标注四维度 · 团队管理 · CoT-SFT-RM 对比'},
+{f:'AI训练师-评测-课程笔记',p:'提取文本/AI训练师课程内容相关__AI训练师-评测-课程笔记.txt',d:'评测集三维度 · GSB/评分/二值 · 置信度三角 · 报告五模块 · 全流程管理'},
+{f:'AI训练师 · 多模态项目-课程笔记',p:'提取文本/AI训练师课程内容相关__AI训练师 · 多模态项目-课程笔记.txt',d:'八模块：扩散原理 · 图片/视频打标 · 理解类 · ASR/TTS · 提效工具 · AGI 五阶段'},
+{f:'自动化',p:'提取文本/AI训练师课程内容相关__自动化.txt',d:'RPA/IAA · PE 六步法 · 工作流 · 脚本 · LLM as a Judge · 迪士尼故事框架'},
+{f:'AI竞品分析＆评测',p:'提取文本/AI训练师课程内容相关__AI竞品分析＆评测.txt',d:'项目陈述痛点→手段→结果 · 评测集构建关键 · 人效标准 · 离职话术'},
+{f:'面试复盘笔记',p:'提取文本/AI训练师课程内容相关__面试复盘笔记.txt',d:'TOP10 问题诊断 · 项目边界速查口诀 · 术语正音 · 高频应答模板'},
+{f:'🚀 AI训练师冲刺阶段：面试简历指导课',p:'提取文本/AI训练师课程内容相关__🚀 AI训练师冲刺阶段：面试简历指导课.txt',d:'过五关斩六将 · 100分简历 · 稀缺标签 · 个人知识库 · Boss 策略 · 黄金15字'},
+{f:'课程时间线',p:'AI训练师课程内容相关/课程时间线/课程时间线.md',d:'15 场录音-课件-文档按日期/场次映射（本页时间线数据来源）'},
+{f:'第二周作业 · 规则文档库',p:'AI训练师课程内容相关/AI训练师第二周作业',d:'SFT单轮/多轮 · RM · RAG · CoT · Agent 规则文档 + 五分钟速读版 + 动态漫审核规则'},
+{f:'AI训练师入门-工具与订阅清单',p:'AI训练师入门-工具与订阅清单.md',d:'订阅充值 · 9 个应用 · 工具网络环境配置'}
+];
+const SRC_BASE='../人格库/05_AI知识库/02_AI训练师原件/';
+/* ---- knowledge graph ---- */
+const GC={chain:'#3b82f6',train:'#8b5cf6',proj:'#f59e0b',mm:'#ec4899',eval:'#f43f5e',auto:'#14b8a6',career:'#eab308',role:'#10b981'};
+const GDOMAIN={chain:'链路环节',train:'训练阶段',proj:'数据项目',mm:'多模态',eval:'评测体系',auto:'自动化提效',career:'职业面试',role:'角色'};
+const GN=[
+{id:'pm',l:'AI产品经理',g:'role',s:'#swimlane',d:'上游需求方：从用户体验/产品缺陷提需求'},
+{id:'algo',l:'算法工程师',g:'role',s:'#swimlane',d:'上游需求方：从模型底层能力提需求'},
+{id:'trainer',l:'AI训练师',g:'role',s:'#chain',d:'核心执行者：模型导师+数据项目管家'},
+{id:'labeler',l:'数据标注员',g:'role',s:'#swimlane',d:'下游生产方：按规则拉框/改写/评测'},
+{id:'qc',l:'质检员',g:'role',s:'#manage',d:'抽检30–40%，训练师再抽检质检员'},
+{id:'c1',l:'需求承接',g:'chain',s:'#chain',d:'5W2H拆解，抽象需求→数据生产标准'},
+{id:'c2',l:'数据核验',g:'chain',s:'#chain',d:'先产出总览报告，防层级陷阱/质量欺诈'},
+{id:'c3',l:'规则文档',g:'chain',s:'#rules',d:'唯一执行准绳，Case是灵魂'},
+{id:'c4',l:'试标',g:'chain',s:'#chain',d:'~30条验证规则，准入≥90%'},
+{id:'c5',l:'排期管理',g:'chain',s:'#manage',d:'量÷(人效×人数)，预留容错'},
+{id:'c6',l:'数据生产',g:'chain',s:'#projects',d:'六大项目+多模态，三人盲标取共识'},
+{id:'c7',l:'质量把控',g:'chain',s:'#manage',d:'三层防线，二次抽检'},
+{id:'c8',l:'交付复盘',g:'chain',s:'#chain',d:'理想态数据+复盘报告'},
+{id:'c9',l:'模型训练',g:'chain',s:'#training',d:'PT→SFT→RLHF'},
+{id:'c10',l:'模型评测',g:'chain',s:'#eval',d:'全新考试，交付评测报告'},
+{id:'c11',l:'迭代闭环',g:'chain',s:'#chain',d:'BadCase归因→规则优化→再投喂'},
+{id:'pt',l:'预训练PT',g:'train',s:'#training',d:'无监督，海量Token→Base Model'},
+{id:'sft',l:'SFT微调',g:'train',s:'#training',d:'教说话，60–70%项目，问答对'},
+{id:'rlhf',l:'RLHF',g:'train',s:'#training',d:'人类反馈强化学习，自我进化'},
+{id:'rm',l:'奖励模型RM',g:'train',s:'#training',d:'裁判，学人类偏好排序'},
+{id:'dpo',l:'DPO',g:'train',s:'#training',d:'直接偏好优化，1偏好+N非偏好'},
+{id:'p_single',l:'单轮问答',g:'proj',s:'#projects',d:'独立问答对，八大维度'},
+{id:'p_multi',l:'多轮问答',g:'proj',s:'#projects',d:'上下文连贯，首重意图识别'},
+{id:'p_rag',l:'RAG标注',g:'proj',s:'#projects',d:'考阅读理解，丢弃/改写/常识特例'},
+{id:'p_cot',l:'CoT标注',g:'proj',s:'#projects',d:'插入推理步骤，三思而后行'},
+{id:'p_agent',l:'Agent标注',g:'proj',s:'#projects',d:'考规划与工具调用，参数校验/缺失追问'},
+{id:'m_img',l:'图片生成',g:'mm',s:'#multimodal',d:'低质筛选→分类→Caption结构化'},
+{id:'m_vid',l:'视频生成',g:'mm',s:'#multimodal',d:'5–15秒，镜头运动是灵魂'},
+{id:'m_und',l:'图片/视频理解',g:'mm',s:'#multimodal',d:'VLM，标注两步法'},
+{id:'m_asr',l:'ASR识别',g:'mm',s:'#multimodal',d:'语音→文本，转写7原则'},
+{id:'m_tts',l:'TTS合成',g:'mm',s:'#multimodal',d:'文本→语音，拼音校验/三三变调'},
+{id:'e_set',l:'评测集',g:'eval',s:'#eval',d:'陌生×多维×难度，100–300条'},
+{id:'e_gsb',l:'GSB对比',g:'eval',s:'#eval',d:'盈率=(G+S/2)/总数'},
+{id:'e_score',l:'评分法',g:'eval',s:'#eval',d:'4–6维度，每档配解释'},
+{id:'e_report',l:'评测报告',g:'eval',s:'#eval',d:'五模块，核心结论最体现能力'},
+{id:'e_blind',l:'双盲评测',g:'eval',s:'#eval',d:'多人同批，置信度三角'},
+{id:'a_pe',l:'PE提示词',g:'auto',s:'#auto',d:'六步法闭环，20%构建80%迭代'},
+{id:'a_wf',l:'工作流',g:'auto',s:'#auto',d:'Coze/Dify/n8n，节点变量接力'},
+{id:'a_script',l:'Python脚本',g:'auto',s:'#auto',d:'十万级最高效，API三要素'},
+{id:'a_judge',l:'LLM评审',g:'auto',s:'#auto',d:'先原因后打分，防三偏见'},
+{id:'k_vertical',l:'垂类护城河',g:'career',s:'#career',d:'AI+医疗/法律/建筑/金融'},
+{id:'k_kb',l:'个人知识库',g:'career',s:'#career',d:'X轴工作流+Y轴技术/行业'},
+{id:'k_story',l:'迪士尼框架',g:'career',s:'#career',d:'背景→冲突→思路→成果'},
+{id:'k_362',l:'3-6-2战略',g:'career',s:'#career',d:'起步→积累→爆发，年薪30万+'}
+];
+const GE=[
+['pm','c1'],['algo','c1'],['c1','trainer'],['trainer','c2'],['c2','c3'],['c3','c4'],['c4','c5'],['c5','c6'],['c6','labeler'],['c6','c7'],['c7','qc'],['c7','c8'],['c8','c9'],['c9','c10'],['c10','c11'],['c11','c3'],
+['c9','pt'],['pt','sft'],['sft','rlhf'],['rlhf','rm'],['rm','dpo'],['sft','p_single'],['sft','p_multi'],['rlhf','rm'],['c6','p_single'],['c6','p_multi'],['c6','p_rag'],['c6','p_cot'],['c6','p_agent'],
+['p_rag','m_und'],['c6','m_img'],['c6','m_vid'],['c6','m_und'],['c6','m_asr'],['c6','m_tts'],['m_img','m_vid'],['m_und','m_asr'],
+['c10','e_set'],['e_set','e_gsb'],['e_set','e_score'],['e_gsb','e_report'],['e_score','e_report'],['e_blind','e_report'],['e_report','c11'],
+['a_pe','c6'],['a_wf','c6'],['a_script','c6'],['a_judge','c7'],['a_pe','a_wf'],['a_wf','a_script'],['a_judge','e_score'],
+['trainer','k_kb'],['k_kb','k_vertical'],['k_story','k_kb'],['k_362','k_vertical'],['c8','k_story'],['algo','pt']
+];
+/* ================= LOGIC ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* modules meta */
+const MODULES=[
+{id:'chain',icon:'🔗',title:'整体链路',badge:'11 环节',color:'#3b82f6',sub:'需求→生产→质检→训练→评测→迭代',df:'训练师 11 环节全流程闭环，点击每步看详解、指标与来源。',ct:'<b>11</b> 环节 · <b>1</b> 闭环'},
+{id:'swimlane',icon:'🏊',title:'泳道协作',badge:'6 角色',color:'#10b981',sub:'谁在哪个环节做什么',df:'6 角色 × 8 阶段跨职能泳道图，角色高亮筛选职责。',ct:'<b>6</b> 角色 · <b>8</b> 阶段'},
+{id:'training',icon:'🧬',title:'训练三阶段',badge:'PT/SFT/RLHF',color:'#8b5cf6',sub:'从通才到专才到自我进化',df:'预训练 / SFT / RLHF + RM 五步流程 + CoT-SFT-RM 对比。',ct:'<b>3</b> 阶段 · <b>60–70%</b> SFT'},
+{id:'projects',icon:'📦',title:'数据项目',badge:'6 类型',color:'#f59e0b',sub:'标注逻辑各不同',df:'单轮/多轮/RM/RAG/CoT/Agent 六大文本项目标注要点。',ct:'<b>6</b> 项目类型'},
+{id:'multimodal',icon:'🎨',title:'多模态',badge:'5 方向',color:'#ec4899',sub:'当前最热门方向',df:'图片/视频生成与理解、ASR/TTS + 扩散原理 + AGI 五阶段。',ct:'<b>5</b> 方向 · <b>8</b> 模块'},
+{id:'rules',icon:'📐',title:'规则文档',badge:'核心产出',color:'#06b6d4',sub:'唯一执行准绳',df:'文档结构 + Case 灵魂 + 通用五维 + 四个迭代触发器。',ct:'<b>4</b> 必备模块 · <b>3</b> 类 Case'},
+{id:'manage',icon:'🛡️',title:'管理质检',badge:'排期+QC',color:'#f97316',sub:'面试必考排期逻辑',df:'交互式排期计算器 + 三层质量防线 + 团队准入机制。',ct:'<b>3</b> 层防线 · <b>30–40%</b> 抽检'},
+{id:'eval',icon:'🎯',title:'评测体系',badge:'面试必考',color:'#f43f5e',sub:'给 AI 大脑做全面考试',df:'评测集三维度 + 三方法 + GSB 盈率计算器 + 报告五模块。',ct:'<b>3</b> 方法 · <b>5</b> 报告模块'},
+{id:'auto',icon:'⚙️',title:'自动化提效',badge:'设计师思维',color:'#14b8a6',sub:'做流水线的设计师',df:'RPA/IAA + PE 六步法 + 三大工具 + LLM 评审避坑。',ct:'<b>3</b> 工具 · <b>6</b> 步 PE'},
+{id:'glossary',icon:'📖',title:'术语速查',badge:'61 术语',color:'#a855f7',sub:'搜索 + 分类筛选',df:'课程全部核心概念，按 11 个知识域分类，支持搜索。',ct:'<b>61</b> 术语 · <b>11</b> 域'},
+{id:'timeline',icon:'📅',title:'课程时间线',badge:'15 场次',color:'#eab308',sub:'约 70 小时实录',df:'2026-04-04 开营 → 05-26，15 场录音按周/主题映射。',ct:'<b>15</b> 场 · <b>~70h</b>'},
+{id:'career',icon:'🚀',title:'职业面试',badge:'3-6-2',color:'#22c55e',sub:'改变职业轨迹',df:'3-6-2 战略 + 过五关 + 简历稀缺标签 + 复盘致命坑。',ct:'<b>5</b> 关 · <b>4</b> 致命坑'},
+{id:'sources',icon:'📚',title:'来源引用',badge:'11 份',color:'#64748b',sub:'回到课程原文',df:'链接到本地课程笔记、录音转录与规则文档原文。',ct:'<b>11</b> 份来源'}
+];
+const MOD_BY_ID={};MODULES.forEach(m=>MOD_BY_ID[m.id]=m);
+
+/* theme */
+function setTheme(mode){document.documentElement.className=mode;const t=mode==='dark'?'🌙':'☀️';$('#theme-btn').textContent=t;const b2=$('#theme-btn2');if(b2)b2.textContent=t;try{localStorage.setItem('atk-theme',mode)}catch(e){}}
+$('#theme-btn').onclick=()=>setTheme(document.documentElement.className==='dark'?'light':'dark');
+$('#theme-btn2').onclick=()=>setTheme(document.documentElement.className==='dark'?'light':'dark');
+try{const t=localStorage.getItem('atk-theme');setTheme(t||'dark')}catch(e){setTheme('dark')}
+
+/* home module cards */
+$('#module-grid').innerHTML=MODULES.map((m,i)=>`<button class="m-card" style="--mc:${m.color};--mcs:${m.color}25;--mcb:${m.color}15;--mci:${m.color}25;animation-delay:${i*50}ms" onclick="openView('${m.id}')">
+  <span class="bar"></span>
+  <div class="row"><span class="ico">${m.icon}</span><span class="idx">${String(i+1).padStart(2,'0')} / ${MODULES.length}</span></div>
+  <h3>${m.title}</h3><div class="st">${m.sub}</div><div class="df">${m.df}</div>
+  <div class="ft"><span class="ct">${m.ct}</span><span style="color:${m.color}">→</span></div>
+</button>`).join('');
+
+/* ===== view navigation ===== */
+let currentView=null;
+const overlay=$('#view-overlay'),vcontent=$('#view-content'),store=$('#store');
+function renderQuicknav(){$('#quicknav').innerHTML=MODULES.map(m=>`<button class="qpill ${m.id===currentView?'on':''}" onclick="openView('${m.id}')">${m.icon} ${m.title}</button>`).join('');}
+function openView(id){
+  const m=MOD_BY_ID[id];if(!m)return;
+  if(currentView&&currentView!==id){store.appendChild(document.getElementById(currentView));}
+  const sec=document.getElementById(id);
+  vcontent.innerHTML='';vcontent.appendChild(sec);
+  currentView=id;
+  $('#view-icon').textContent=m.icon;$('#view-title').textContent=m.title;
+  const bd=$('#view-badge');bd.textContent=m.badge;bd.style.background=`linear-gradient(90deg,${m.color},${m.color}aa)`;
+  $('#view-sub').textContent=m.sub;
+  renderQuicknav();
+  overlay.classList.add('open');document.body.style.overflow='hidden';
+  $('#view-scroll').scrollTop=0;
+  vcontent.classList.remove('anim');void vcontent.offsetWidth;vcontent.classList.add('anim');
+  const on= $('#quicknav .qpill.on');if(on)on.scrollIntoView({inline:'center',block:'nearest'});
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+}
+function closeView(){
+  if(currentView){store.appendChild(document.getElementById(currentView));}
+  currentView=null;overlay.classList.remove('open');document.body.style.overflow='';
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+}
+function navView(d){
+  if(!currentView)return;
+  const i=MODULES.findIndex(m=>m.id===currentView);
+  const n=(i+d+MODULES.length)%MODULES.length;
+  openView(MODULES[n].id);
+}
+/* intercept in-content anchor jumps to modules */
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href^="#"]');if(!a)return;
+  const id=a.getAttribute('href').slice(1);
+  if(MOD_BY_ID[id]){e.preventDefault();openView(id);}
+});
+
+/* ===== chain ===== */
+const flow=$('#chain-flow'),detail=$('#chain-detail');
+CHAIN.forEach((c,i)=>{
+  if(i>0){const a=document.createElement('span');a.className='chain-arrow';a.textContent='→';flow.appendChild(a);}
+  const b=document.createElement('button');b.className='chain-node';b.dataset.i=i;
+  b.innerHTML=`<div class="num">STEP ${c.n}</div><div class="nm">${c.t}</div><div class="en">${c.en}</div>`;
+  b.onclick=()=>showChain(i);flow.appendChild(b);
+});
+function showChain(i){
+  const c=CHAIN[i];
+  $$('.chain-node').forEach(n=>n.classList.toggle('active',+n.dataset.i===i));
+  detail.innerHTML=`<div class="cd-head"><span class="cd-num">${c.n}</span><span class="cd-title">${c.t}</span><span class="chip">${c.en}</span></div>
+  <div class="cd-one">${c.one}</div>
+  <div class="cd-cols"><div><ul class="pts">${c.pts.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+  <div><div class="metric-row">${c.m.map(m=>`<div class="metric"><div class="kpi">${m[0]}</div><div class="kpi-label">${m[1]}</div></div>`).join('')}</div>
+  <div class="src"><b>来源：</b>${c.src}</div></div></div>`;
+}
+showChain(0);
+
+/* ===== swimlane ===== */
+const laneFilter=$('#lane-filter'),laneTable=$('#lane-table');
+laneTable.innerHTML='<tr><th style="text-align:left">角色 \\ 阶段</th>'+LANE_STAGES.map(s=>`<th>${s}</th>`).join('')+'</tr>'+LANES.map((r,ri)=>`<tr data-ri="${ri}"><td class="role"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.c};margin-right:6px"></span>${r.role}</td>${r.cells.map(c=>c?`<td class="has"><span class="task">${c}</span></td>`:'<td>·</td>').join('')}</tr>`).join('');
+const allBtn=document.createElement('button');allBtn.textContent='全部角色';allBtn.onclick=()=>filterLane(-1,allBtn);laneFilter.appendChild(allBtn);
+LANES.forEach((r,ri)=>{const b=document.createElement('button');b.textContent=r.role;b.onclick=()=>filterLane(ri,b);laneFilter.appendChild(b);});
+function filterLane(ri,btn){
+  $$('#lane-filter button').forEach(x=>{x.classList.remove('on');x.style.background='';x.style.color='';});
+  btn.classList.add('on');
+  if(ri===-1){btn.style.background='linear-gradient(90deg,#3b82f6,#06b6d4)';btn.style.color='#fff';laneTable.classList.remove('dimmed');$$('#lane-table tr[data-ri]').forEach(tr=>tr.classList.remove('lit'));return;}
+  btn.style.background=LANES[ri].c;btn.style.color='#fff';
+  laneTable.classList.add('dimmed');
+  $$('#lane-table tr[data-ri]').forEach(tr=>tr.classList.toggle('lit',+tr.dataset.ri===ri));
+}
+filterLane(-1,allBtn);
+
+/* ===== project & mm tabs ===== */
+function cardHTML(p){return `<div class="card proj-card" style="border-top:3px solid ${p.c}">
+  <div class="p-head"><div class="p-ico" style="background:${p.c}22;border:1px solid ${p.c}55">${p.ico}</div><div><div class="p-name">${p.name}</div><div class="p-en">${p.en}</div></div></div>
+  <div class="p-goal" style="border-left-color:${p.c}">${p.goal}</div>
+  <ul class="pts">${p.pts.map(x=>`<li>${x}</li>`).join('')}</ul>
+  <div class="quote" style="border-left-color:${p.c};background:${p.c}11"><b style="color:${p.c}">⚠️ 关键提醒：</b>${p.warn}</div></div>`;}
+function buildTabs(tabsEl,bodyEl,data){
+  data.forEach((p,i)=>{const b=document.createElement('button');b.innerHTML=`${p.ico} ${p.name}`;b.onclick=()=>{
+    [...tabsEl.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');bodyEl.innerHTML=cardHTML(p);};
+    tabsEl.appendChild(b);if(i===0){b.classList.add('on');bodyEl.innerHTML=cardHTML(p);}});
+}
+buildTabs($('#proj-tabs'),$('#proj-body'),PROJECTS);
+buildTabs($('#mm-tabs'),$('#mm-body'),MM);
+
+/* ===== glossary ===== */
+const CATCOLOR={'角色':'#10b981','模型基础':'#8b5cf6','训练阶段':'#3b82f6','进阶技术':'#06b6d4','多模态':'#ec4899','前沿':'#a78bfa','项目管理':'#f59e0b','质量管理':'#f97316','评测':'#f43f5e','自动化':'#14b8a6','职业面试':'#eab308'};
+const glGrid=$('#gl-grid'),glSearch=$('#gl-search'),glCats=$('#gl-cats'),glEmpty=$('#gl-empty');
+let glCat='全部';
+['全部',...Object.keys(CATCOLOR)].forEach(c=>{const b=document.createElement('button');b.textContent=c;b.onclick=()=>{glCat=c;$$('#gl-cats button').forEach(x=>x.classList.toggle('on',x===b));renderGl();};if(c==='全部')b.classList.add('on');glCats.appendChild(b);});
+function renderGl(){
+  const q=glSearch.value.trim().toLowerCase();
+  const list=GLOSSARY.filter(g=>(glCat==='全部'||g.cat===glCat)&&(!q||(g.t+g.en+g.d+g.cat).toLowerCase().includes(q)));
+  glEmpty.style.display=list.length?'none':'block';
+  glGrid.innerHTML=list.map(g=>{const c=CATCOLOR[g.cat]||'#3b82f6';return `<div class="gl-item"><span class="cat" style="background:${c}22;color:${c};border:1px solid ${c}44">${g.cat}</span><span class="term">${esc(g.t)}</span><span class="en">${esc(g.en)}</span><div class="desc">${esc(g.d)}</div><div class="from">📄 ${esc(g.from)}</div></div>`;}).join('');
+}
+glSearch.oninput=renderGl;renderGl();
+$('#stat-terms').textContent=GLOSSARY.length;
+
+/* ===== timeline ===== */
+const PHASECOLOR={'第一周':'#3b82f6','第二周':'#8b5cf6','多模态':'#ec4899','评测':'#f43f5e','自动化':'#14b8a6','评测+自动化':'#f59e0b','冲刺':'#eab308','复盘':'#10b981'};
+$('#tl').innerHTML=TIMELINE.map(t=>{const c=PHASECOLOR[t.phase]||'#3b82f6';const h=Math.floor(t.min/60),m=t.min%60;return `<div class="tl-item"><div><span class="date">${t.d}</span><span class="phase chip" style="background:${c}22;color:${c};border-color:${c}44">${t.phase}</span><span class="chip" style="margin-left:6px">⏱ ${h}h${m?m+'m':''}</span></div><div class="rec">🎙 ${t.rec}</div><div class="topic">${t.topic} · <a href="${t.link}">进入对应模块 →</a></div></div>`;}).join('');
+
+/* ===== sources ===== */
+$('#src-grid').innerHTML=SOURCES.map(s=>`<div class="card"><div style="font-weight:700;font-size:14px">📄 ${esc(s.f)}</div><div class="note" style="margin-top:6px">${esc(s.d)}</div><div style="margin-top:10px"><a href="${SRC_BASE+encodeURI(s.p)}" style="font-size:12px">打开原文 ↗</a></div></div>`).join('');
+
+/* ===== calculators ===== */
+function calcSchedule(){
+  const total=+$('#c-total').value||0,people=+$('#c-people').value||1,eff=+$('#c-eff').value||1,qc=+$('#c-qc').value||0,buf=+$('#c-buf').value||0;
+  const base=total/(people*eff);const qcDays=base*(qc/100);const deliver=base+qcDays+buf;
+  $('#o-base').textContent=base.toFixed(1)+' 天';$('#o-qc').textContent=qcDays.toFixed(1)+' 天';$('#o-deliver').textContent=Math.ceil(deliver)+' 天';
+}
+$$('#manage .calc input').forEach(i=>i.oninput=calcSchedule);calcSchedule();
+function calcGSB(){
+  const g=+$('#g-g').value||0,s=+$('#g-s').value||0,b=+$('#g-b').value||0;const total=g+s+b;
+  $('#o-total').textContent=total;$('#o-win').textContent=total?(((g+s/2)/total)*100).toFixed(1)+'%':'–';
+}
+$$('#eval .calc input').forEach(i=>i.oninput=calcGSB);calcGSB();
+
+/* ===== global search ===== */
+const modal=$('#search-modal'),sInput=$('#search-input'),sResults=$('#search-results');
+const SEARCH_INDEX=[
+  ...CHAIN.map(c=>({t:c.t+' · 链路 '+c.n,s:c.one,go:'chain',act:()=>showChain(CHAIN.indexOf(c))})),
+  ...PROJECTS.map(p=>({t:p.ico+' '+p.name,s:p.goal,go:'projects'})),
+  ...MM.map(p=>({t:p.ico+' '+p.name,s:p.goal,go:'multimodal'})),
+  ...GLOSSARY.map(g=>({t:g.t+' ('+g.en+')',s:g.d,go:'glossary',act:()=>{glCat='全部';glSearch.value=g.t;$$('#gl-cats button').forEach(x=>x.classList.toggle('on',x.textContent==='全部'));renderGl();}})),
+  ...MODULES.map(m=>({t:m.icon+' '+m.title,s:m.df,go:m.id}))
+];
+function openSearch(){modal.classList.add('open');sInput.value='';sResults.innerHTML='';setTimeout(()=>sInput.focus(),50);}
+function closeSearch(){modal.classList.remove('open');}
+$('#search-btn').onclick=openSearch;
+modal.onclick=e=>{if(e.target===modal)closeSearch();};
+sInput.oninput=()=>{
+  const q=sInput.value.trim().toLowerCase();if(!q){sResults.innerHTML='';return;}
+  const hits=SEARCH_INDEX.filter(x=>(x.t+x.s).toLowerCase().includes(q)).slice(0,12);
+  sResults.innerHTML=hits.length?hits.map((h,i)=>`<div class="sr" data-i="${i}"><div class="t">${esc(h.t)}</div><div class="s">${esc(h.s.slice(0,80))}</div></div>`).join(''):'<div class="none">无匹配结果</div>';
+  $$('#search-results .sr').forEach(el=>el.onclick=()=>{const h=hits[+el.dataset.i];closeSearch();openView(h.go);if(h.act)setTimeout(h.act,350);});
+};
+document.addEventListener('keydown',e=>{
+  const inInput=/input|textarea/i.test(document.activeElement.tagName);
+  if(e.key==='/'&&!inInput){e.preventDefault();openSearch();}
+  if(e.key==='Escape'){if(modal.classList.contains('open'))closeSearch();else if(currentView)closeView();}
+  if(!inInput&&currentView&&!modal.classList.contains('open')){
+    if(e.key==='ArrowRight')navView(1);
+    if(e.key==='ArrowLeft')navView(-1);
+  }
+});
+
+/* ===== force graph ===== */
+(function(){
+  const canvas=$('#graph-canvas'),ctx=canvas.getContext('2d'),tip=$('#graph-tip'),legend=$('#graph-legend');
+  let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
+  const nodes=GN.map(n=>({...n,x:0,y:0,vx:0,vy:0,r:n.g==='role'?15:11}));
+  const byId={};nodes.forEach(n=>byId[n.id]=n);
+  const edges=GE.map(([a,b])=>({a:byId[a],b:byId[b]})).filter(e=>e.a&&e.b);
+  let scale=1,ox=0,oy=0,drag=null,pan=null,hover=null,alpha=1;
+  function resize(){const rect=canvas.getBoundingClientRect();W=rect.width;H=rect.height;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+  function seed(){const cx=W/2,cy=H/2;const groups={};nodes.forEach(n=>{(groups[n.g]=groups[n.g]||[]).push(n);});
+    const gk=Object.keys(groups);gk.forEach((g,gi)=>{const ang=(gi/gk.length)*Math.PI*2;const gx=cx+Math.cos(ang)*W*0.3,gy=cy+Math.sin(ang)*H*0.32;
+      groups[g].forEach((n,ni)=>{const a2=(ni/groups[g].length)*Math.PI*2;n.x=gx+Math.cos(a2)*55+(Math.random()-.5)*20;n.y=gy+Math.sin(a2)*45+(Math.random()-.5)*20;});});
+    byId.trainer.x=cx;byId.trainer.y=cy;}
+  function tick(){
+    if(alpha>0.003){
+      const cx=W/2,cy=H/2;
+      for(let i=0;i<nodes.length;i++){const a=nodes[i];
+        for(let j=i+1;j<nodes.length;j++){const b=nodes[j];let dx=a.x-b.x,dy=a.y-b.y;let d2=dx*dx+dy*dy||1;let d=Math.sqrt(d2);if(d<1)d=1;
+          const rep=2100/d2;const fx=dx/d*rep,fy=dy/d*rep;a.vx+=fx;a.vy+=fy;b.vx-=fx;b.vy-=fy;}
+        a.vx+=(cx-a.x)*0.006;a.vy+=(cy-a.y)*0.006;}
+      edges.forEach(e=>{const dx=e.b.x-e.a.x,dy=e.b.y-e.a.y;const d=Math.sqrt(dx*dx+dy*dy)||1;const target=e.a.g==='chain'&&e.b.g==='chain'?95:120;const f=(d-target)*0.004;const fx=dx/d*f,fy=dy/d*f;e.a.vx+=fx;e.a.vy+=fy;e.b.vx-=fx;e.b.vy-=fy;});
+      nodes.forEach(n=>{if(n===drag)return;n.vx*=0.82;n.vy*=0.82;n.x+=n.vx*alpha*3;n.y+=n.vy*alpha*3;
+        n.x=Math.max(20,Math.min(W-20,n.x));n.y=Math.max(20,Math.min(H-20,n.y));});
+      alpha=Math.max(0.025,alpha*0.99);}
+  }
+  function toWorld(px,py){return{x:(px-ox)/scale,y:(py-oy)/scale};}
+  function draw(){
+    ctx.clearRect(0,0,W,H);ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
+    const focus=hover?hover.g:null;
+    edges.forEach(e=>{const dim=focus&&e.a.g!==focus&&e.b.g!==focus;ctx.strokeStyle=dim?'rgba(128,150,180,.06)':'rgba(128,150,180,.22)';ctx.lineWidth=dim?0.5:1;ctx.beginPath();ctx.moveTo(e.a.x,e.a.y);ctx.lineTo(e.b.x,e.b.y);ctx.stroke();});
+    nodes.forEach(n=>{const dim=focus&&n.g!==focus;const c=GC[n.g];const isH=n===hover;
+      ctx.globalAlpha=dim?0.18:1;
+      if(isH||n.g==='role'){ctx.shadowColor=c;ctx.shadowBlur=isH?22:12;}else{ctx.shadowBlur=0;}
+      ctx.fillStyle=c;ctx.beginPath();ctx.arc(n.x,n.y,n.r+(isH?3:0),0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle=document.documentElement.className==='dark'?'#e8edf7':'#1a1d21';
+      ctx.font=(isH?'700 ':'600 ')+(n.g==='role'?12:10.5)+'px Inter,"Noto Sans SC",sans-serif';ctx.textAlign='center';
+      ctx.fillText(n.l,n.x,n.y+n.r+13);ctx.globalAlpha=1;});
+    ctx.restore();
+  }
+  function loop(){tick();draw();requestAnimationFrame(loop);}
+  function pick(px,py){const w=toWorld(px,py);let best=null,bd=1e9;nodes.forEach(n=>{const d=Math.hypot(n.x-w.x,n.y-w.y);if(d<n.r+8&&d<bd){bd=d;best=n;}});return best;}
+  canvas.addEventListener('pointerdown',e=>{const rect=canvas.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;const n=pick(px,py);
+    if(n){drag=n;drag._moved=false;alpha=Math.max(alpha,0.5);canvas.setPointerCapture(e.pointerId);}else{pan={x:e.clientX,y:e.clientY,ox,oy};canvas.setPointerCapture(e.pointerId);}});
+  canvas.addEventListener('pointermove',e=>{const rect=canvas.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;
+    if(drag){const w=toWorld(px,py);drag.x=w.x;drag.y=w.y;drag.vx=0;drag.vy=0;drag._moved=true;alpha=Math.max(alpha,0.3);tip.style.opacity=0;return;}
+    if(pan){ox=pan.ox+(e.clientX-pan.x);oy=pan.oy+(e.clientY-pan.y);return;}
+    const n=pick(px,py);hover=n;canvas.style.cursor=n?'pointer':'grab';
+    if(n){tip.innerHTML=`<div class="t" style="color:${GC[n.g]}">${n.l}</div><div class="d">${n.d}</div><div class="d" style="color:${GC[n.g]};margin-top:4px">点击进入「${GDOMAIN[n.g]}」→</div>`;
+      tip.style.opacity=1;let tx=px+16,ty=py+16;if(tx+260>W)tx=px-270;if(ty+90>H)ty=py-90;tip.style.left=tx+'px';tip.style.top=ty+'px';}
+    else tip.style.opacity=0;});
+  canvas.addEventListener('pointerup',()=>{if(drag&&!drag._moved){openView(drag.s.replace('#',''));}drag=null;pan=null;});
+  canvas.addEventListener('pointerleave',()=>{hover=null;tip.style.opacity=0;});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();const rect=canvas.getBoundingClientRect();const px=e.clientX-rect.left,py=e.clientY-rect.top;
+    const factor=e.deltaY<0?1.12:0.89;const ns=Math.max(0.4,Math.min(3,scale*factor));
+    ox=px-(px-ox)*(ns/scale);oy=py-(py-oy)*(ns/scale);scale=ns;},{passive:false});
+  Object.keys(GDOMAIN).forEach(g=>{const el=document.createElement('span');el.className='lg';el.innerHTML=`<span class="sw" style="background:${GC[g]}"></span>${GDOMAIN[g]}`;
+    el.onclick=()=>{const target=nodes.find(n=>n.g===g);if(target)openView(target.s.replace('#',''));};legend.appendChild(el);});
+  window.addEventListener('resize',resize);
+  resize();seed();loop();
+})();
+
+/* deep link */
+try{const h=location.hash.slice(1);if(MOD_BY_ID[h])setTimeout(()=>openView(h),100);}catch(e){}
+</script>
+</body>
+</html>
